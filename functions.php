@@ -95,32 +95,27 @@ function GetAllProjects($action) {
 ///////////
 
 
-function GetAllTasks() {
-	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT * FROM `tasks` ORDER BY `id` ASC");
-	
-	if ($result) {
-		$alltasks = "";
-		while ($row = mysqli_fetch_assoc($result)) {
-			//print_r($row);
-			$alltasks[$row['id']] = $row;
-		}
-		return $alltasks;
-	} else {
-		// Error running the query. Return error.
-		echo "unexpectederror";
+function GetTasks($action) {
+	switch ($action) {
+		case "showall":
+			$sqlaction = "";
+			break;
+		case "resolved":		
+			$sqlaction = "WHERE `resolved` != 0 ";
+			break;
+		default:
+			$sqlaction = "WHERE `resolved` = 0 ";
+			break;
 	}
-}
-
-function GetDoneTasks() {
-	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT * FROM `tasks` WHERE AND `resolved` = 1 ORDER BY `id` ASC");
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `t`.`id`, `t`.`project`, `t`.`user`, `t`.`title` AS `title`, `t`.`submitted` AS `submitted`, `u`.`username` AS `username`, `p`.`name` AS `projectname` FROM `tasks` AS `t` JOIN `users` AS `u` ON `t`.`user` = `u`.`id` JOIN `projects` AS `p` on `t`.`project` = `p`.`id` ".$sqlaction."ORDER BY `id` ASC");
 	
 	if ($result) {
-		$donetasks = "";
+		$tasks = "";
 		while ($row = mysqli_fetch_assoc($result)) {
 			//print_r($row);
-			$donetasks[$row['id']] = $row;
+			$tasks .= "<tr><td>".$row['projectname']."</td><td>".$row['username']."</td><td>".$row['title']."</td><td>".$row['submitted']."</td><td><a href=\"tasks.php?a=view&i=".$row['id']."\"><i class=\"tiny material-icons\">remove_red_eye</i></a><a href=\"tasks.php?a=mark&w=1&i=".$row['id']."\"><i class=\"tiny material-icons text-success\">spellcheck</i></a></td>";
 		}
-		return $donetasks;
+		return $tasks;
 	} else {
 		// Error running the query. Return error.
 		echo "unexpectederror";
@@ -137,22 +132,6 @@ function GetTaskReplies($taskid) {
 			print_r($row);
 		}
 		return $replies;
-	} else {
-		// Error running the query. Return error.
-		echo "unexpectederror";
-	}
-}
-
-function GetPendingTasks() {
-	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `t`.`id`, `t`.`project`, `t`.`user`, `t`.`title` AS `title`, `t`.`submitted` AS `submitted`, `u`.`username` AS `username`, `p`.`name` AS `projectname` FROM `tasks` AS `t` JOIN `users` AS `u` ON `t`.`user` = `u`.`id` JOIN `projects` AS `p` on `t`.`project` = `p`.`id` WHERE `resolved` = 0 ORDER BY `id` ASC");
-	
-	if ($result) {
-		$pendingtasks = "";
-		while ($row = mysqli_fetch_assoc($result)) {
-			//print_r($row);
-			$pendingtasks .= "<tr><td>".$row['projectname']."</td><td>".$row['username']."</td><td>".$row['title']."</td><td>".$row['submitted']."</td><td><a href=\"tasks.php?a=view&i=".$row['id']."\"><i class=\"tiny material-icons\">remove_red_eye</i></a><a href=\"tasks.php?a=mark&w=1&i=".$row['id']."\"><i class=\"tiny material-icons text-success\">spellcheck</i></a></td>";
-		}
-		return $pendingtasks;
 	} else {
 		// Error running the query. Return error.
 		echo "unexpectederror";

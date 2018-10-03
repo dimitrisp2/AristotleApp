@@ -2,7 +2,12 @@
 $page = "Tasks";
 include("functions.php");
 include("common/head.php");
-$pending = GetPendingTasks();
+if (isset($_GET['a'])) {
+	$action = $_GET['a'];
+} else {
+	$action = NULL;
+}
+$pending = GetTasks($action);
 ?>
 
     <div class="container">
