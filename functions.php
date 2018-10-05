@@ -96,15 +96,17 @@ function GetAllProjects($action) {
 			$sqlaction = "";
 			break;
 	}
-	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `p`.`id`, `p`.`name` AS `projectname`, `p`.`github` AS `github`, `p`.`crowdin` AS `crowdin`, `p`.`started` AS `started`, `p`.`finished` AS `finished`, `u`.`username` AS `translatorname`, `u2`.`username` AS `proofreadername` FROM `projects` AS `p` JOIN `users` AS `u` ON `p`.`translator` = `u`.`id` JOIN `users` AS `u2` on `p`.`proofreader` = `u2`.`id` ".$sqlaction." ORDER BY `projectname` ASC");
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `p`.`id`, `p`.`name` AS `projectname`, `p`.`github` AS `github`, `p`.`crowdin` AS `crowdin`, `p`.`started` AS `started`, `p`.`proofreader` AS `proofreader`, `p`.`finished` AS `finished`, `u`.`username` AS `translatorname`, `u2`.`username` AS `proofreadername` FROM `projects` AS `p` JOIN `users` AS `u` ON `p`.`translator` = `u`.`id` JOIN `users` AS `u2` on `p`.`proofreader` = `u2`.`id` ".$sqlaction." ORDER BY `projectname` ASC");
 	if ($result) {
 		$allprojects = "";
 		while ($row = mysqli_fetch_assoc($result)) {
 			//print_r($row);
 			if ($row['finished'] == NULL) {
 				$finished = "Not yet";
+				$finishlink = "<a href=\"projects.php?a=mark&w=1&i=".$row['id']."\"><i class=\"tiny material-icons text-success\">spellcheck</i></a>";
 			} else {
 				$finished = date("d/m/Y", strtotime($row['finished']));
+				$finishlink = "";
 			}
 			
 			if ($row['started'] == NULL) {
@@ -112,7 +114,15 @@ function GetAllProjects($action) {
 			} else {
 				$started = date("d/m/Y", strtotime($row['started']));
 			}
-			$allprojects .= "<tr><td>".$row['projectname']."</td><td>".$row['translatorname']."</td><td>".$row['proofreadername']."</td><td>".$started."</td><td>".$finished."</td><td><a href=\"projects.php?a=view&i=".$row['id']."\"><i class=\"tiny material-icons\">remove_red_eye</i></a><a href=\"projects.php?a=mark&w=1&i=".$row['id']."\"><i class=\"tiny material-icons text-success\">spellcheck</i></a></td>";
+			
+			if ($row['proofreader'] == 0) {
+				$assignlink = "<a href=\"projects.php?a=assign&i=".$row['id']."\"><i class=\"tiny material-icons\">assignment_ind</i></a>&nbsp;";
+				$finishlink = "";
+			} else {
+				$assignlink = "";
+			}
+			
+			$allprojects .= "<tr><td>".$row['projectname']."</td><td>".$row['translatorname']."</td><td>".$row['proofreadername']."</td><td>".$started."</td><td>".$finished."</td><td>".$assignlink."<a href=\"projects.php?a=view&i=".$row['id']."\"><i class=\"tiny material-icons\">remove_red_eye</i></a>&nbsp;".$finishlink."</td>";
 		}
 		return $allprojects;
 	} else {
@@ -121,7 +131,19 @@ function GetAllProjects($action) {
 	}
 }
 
-
+function ProjectMarkedComplete($project) {
+	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
+	$finishdate = date('Y-m-d H:i:s', time() + $expires_in);
+	if (mysqli_stmt_prepare($stmt, 'UPDATE `projects` SET `finished` = ? WHERE `id` = ?')) {
+		mysqli_stmt_bind_param($stmt, "si", $finishdate, $project);
+		$rvl = mysqli_stmt_execute($stmt);
+		if ($rvl) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
 ///////////
 // TASKS //
 ///////////

@@ -1,12 +1,32 @@
-## DaVinci/Utopian Tasklist
+## Aristotle Team App
 
-This is a piece of software I am currently developing for the DaVinci/Utopian translations project. The project's aim is to make the work of LMs a little bit easier.
+Aristotle Team App is a webapp created to help the workflow of the contributions in the DaVinci/Utopian translations category. In other terms, it will make the life of all LMs a little bit easier.
 
-The Greek translations team is currently using a spreadsheet to coordinate everything, but we are constantly adding new stuff to the spreadsheet and is starting to get to a point that it is simply not managable.
+After talking with my fellow Greek Language Mod [@ruth-girl](https://www.steemit.com/@ruth-girl), we decided that we needed something different to make it better.
 
-After talking with my fellow Greek Language Mod [@ruth-girl](https://www.steemit.com/@ruth-girl), I decided to make some piece of software to make the flow of the work a little bit easier
+## Planned initial functionality
+
+- Task requests from Translators* **partially done**
+- SteemConnect integration **partially done**
+- Projects list with start/finish dates **partially done**
+- Translator list with the projects they are translating (or have finished translating)
+- Contributions list with check of LM review and Utopian upvotes.
+- LM Review upvote by Utopian
+- Days of LM availability for better coordination with the translators
 
 I will be updating this README file as soon as I have something to add (new features etc). At the time of writing this, there's nothing really working, except for the listing of Task Requests and Projects.
+
+* Not to be used exclusively for the translations communication. Intended as a supplemental way, as discord chat can be unmanageable.
+
+## Server requirements
+
+This software runs on PHP/MySQL. It is tested and best used with:
+
+Apache 2.4+
+PHP 7.1+
+MySQL 5.0+
+
+The software also requires CURL
 
 ### License
 

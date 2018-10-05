@@ -1,13 +1,23 @@
 <?php
 $page = "Projects";
 include("functions.php");
-include("common/head.php");
 if (isset($_GET['a'])) {
 	$action = $_GET['a'];
 } else {
-	$action = NULL;
+	$action = "all";
 }
-$projects = GetAllProjects($action);
+
+if ($action == "mark") {
+	ProjectMarkedComplete($_GET['i']);
+	header("Location: projects.php");
+	die();
+} else if ($action == "view") {
+	
+} else {
+	$projects = GetAllProjects($action);
+}
+
+include("common/head.php");
 ?>
 
     <div class="container">
