@@ -18,11 +18,30 @@ $sqldb = "translator";
 ////////////////////////////////////////////////////////////
 // 						functions.php					  //
 // Contains all the functions that interact with MySQL DB //
+//														  //
+//														  //
+// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
+// 						  ARE DOING						  //
+//														  //
+// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
+// 						  ARE DOING						  //
+//														  //
+// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
+// 						  ARE DOING						  //
+//														  //
+// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
+// 						  ARE DOING						  //
+//														  //
+// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
+// 						  ARE DOING						  //
+//														  //
+// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
+// 						  ARE DOING						  //
+//														  //
+// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
+// 						  ARE DOING						  //
+//														  //
 ////////////////////////////////////////////////////////////
-
-
-// require_once(dirname(__FILE__)."/config.php");
-
 
 //////////////////////////
 //						//
@@ -43,6 +62,19 @@ function openSQL() {
 }
 
 openSQL();
+
+///////////
+// LOGIN //
+///////////
+
+function SubmitCookie2DB($access_token, $username, $expires_in	) {
+	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
+	$exp = date('Y-m-d H:i:s', time() + $expires_in);
+	if (mysqli_stmt_prepare($stmt, 'UPDATE `users` SET `authkey` = ?, `expiresin` = ? WHERE `username` = ?')) {
+		mysqli_stmt_bind_param($stmt, "sss", $access_token, $exp, $username);
+		$rvl = mysqli_stmt_execute($stmt);
+	}
+}
 
 //////////////
 // PROJECTS //
