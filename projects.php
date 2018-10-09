@@ -8,13 +8,36 @@ if (isset($_GET['a'])) {
 }
 
 if ($action == "mark") {
-	ProjectMarkedComplete($_GET['i']);
-	header("Location: projects.php");
-	die();
+	If (ProjectMarkedComplete($_GET['i'])) {
+		$pagecontent = "Action done";
+	} else {
+		$pagecontent = "Error occured finishin action";
+	}
+	//header("Location: projects.php");
+	//die();
+} else if ($action == "prepare-assign") {
+	if (isset($_GET['selected'])) {
+		$selected = $_GET['selected'];
+	} else {
+		$selected = "0";
+	}
+	$pagecontent = "<h3 class=\"text-center\">Assign Translator and Proofreader to Project</h3><br /><hr /><form action=\"projects.php?a=commit-assign\" method=\"post\" class=\"offset-sm-4\">";
+	$projectcsv = GetProjectsCSV();
+	$projecthtml = ConvertArray2HTMLOptions(explode(",", $projectcsv), "#", "projects", $selected);
+	$pagecontent .= "<div class=\"form-group row\"><label for=\"project\" class=\"col-3 col-form-label\">Project</label> <div class=\"col-5\">$projecthtml</div></div> ";
+	$tcsv = GetTranslatorsCSV();
+	$thtml = ConvertArray2HTMLOptions(explode(",", $tcsv), "#", "translators");
+	$pagecontent .= "<div class=\"form-group row\"><label for=\"translators\" class=\"col-3 col-form-label\">Translator</label> <div class=\"col-5\">$thtml</div></div> ";
+	$proofcsv = GetProofreadersCSV();
+	$proofhtml = ConvertArray2HTMLOptions(explode(",", $proofcsv), "#", "proofreaders");
+	$pagecontent .= "<div class=\"form-group row\"><label for=\"proofreaders\" class=\"col-3 col-form-label\">Proofreader</label> <div class=\"col-5\">$proofhtml</div></div> ";
+	$pagecontent .= "<div class=\"form-group\"><button name=\"submit\" type=\"submit\" class=\"btn btn-primary offset-sm-2\">Submit</button></div>";
+	$pagecontent .= "</form>";
 } else if ($action == "view") {
 	
 } else {
 	$projects = GetAllProjects($action);
+	$pagecontent = "<p class=\"lead\">Refine View: <a href=\"projects.php\">All</a> | <a href=\"projects.php?a=progress\">Being Translated</a> | <a href=\"projects.php?a=finished\">Finished</a> | <a href=\"projects.php?a=wait\">Not Started</a></p><table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>Translator</th><th>Proofreader</th><th>Started</th><th>Finished</th><th></th></tr></thead><tbody>$projects</tbody></table>";
 }
 
 include("common/head.php");
@@ -23,25 +46,12 @@ include("common/head.php");
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto">
-                <p class="lead">Refine View: <a href="projects.php">All</a> | <a href="projects.php?a=progress">Being Translated</a> | <a href="projects.php?a=finished">Finished</a> | <a href="projects.php?a=wait">Not Started</a></p>
-				  <table class="table table-striped table-hover">
-					<thead>
-					  <tr>
-						<th>Project</th>
-						<th>Translator</th>
-						<th>Proofreader</th>
-						<th>Started</th>
-						<th>Finished</th>
-						<th></th>
-					  </tr>
-					</thead>
-					<tbody>
-						<?php echo $projects; ?>
-					</tbody>
-				  </table>
+                <?php echo $pagecontent; ?>
             </div>
         </div>
     </div>
 <?php
 include("common/foot.php");
 ?>
+
+

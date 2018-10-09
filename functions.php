@@ -63,6 +63,76 @@ function openSQL() {
 
 openSQL();
 
+function ConvertArray2HTMLOptions($arrayinput, $seperator, $name, $selectedid = NULL) {
+	$HTMLOptions = "<select name=\"". $name ."\" id=\"". $name ."\">  class=\"form-control\"";
+	foreach ($arrayinput as $item) {
+		$thisitem = explode($seperator, $item);
+		if ((!is_null($selectedid) || $selectedid != 0) AND ($thisitem['0'] == $selectedid)) {
+			$selected = "selected";
+		} else {
+			$selected = "";
+		}
+		$HTMLOptions .= "<option value=\"".$thisitem['0']."\" ".$selected.">".$thisitem['1']."</option>";
+	}
+	$HTMLOptions .= "</select>";
+	return $HTMLOptions;
+}
+
+function GetTranslatorsCSV() {
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id`, `username` FROM `users` WHERE `role` = 1 OR `role` = 3 ORDER BY `username` ASC");
+	if ($result) {
+		$translatorlist = "";
+		$translators = mysqli_num_rows($result);
+		$i = 0;
+		while ($row = mysqli_fetch_assoc($result)) {
+			$i++;
+			if ($i < $translators) {
+				$translatorlist .= $row['id'] . "#" . $row['username'] . ",";
+			} else {
+				$translatorlist .= $row['id'] . "#" . $row['username'];
+			}
+		}
+		return $translatorlist;
+	}
+}
+
+function GetProofreadersCSV() {
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id`, `username` FROM `users` WHERE `role` = 2 OR `role` = 3 ORDER BY `username` ASC");
+	if ($result) {
+		$proofreaderlist = "";
+		$proofreaders = mysqli_num_rows($result);
+		$i = 0;
+		while ($row = mysqli_fetch_assoc($result)) {
+			$i++;
+			if ($i < $proofreaders) {
+				$proofreaderlist .= $row['id'] . "#" . $row['username'] . ",";
+			} else {
+				$proofreaderlist .= $row['id'] . "#" . $row['username'];
+			}
+		}
+		return $proofreaderlist;
+	}	
+}
+
+function GetProjectsCSV() {
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id`, `name` FROM `projects` WHERE `translator` = 0 ORDER BY `name` ASC");
+	if ($result) {
+		$projectlist = "";
+		$projects = mysqli_num_rows($result);
+		$i = 0;
+		while ($row = mysqli_fetch_assoc($result)) {
+			$i++;
+			if ($i < $projects) {
+				$projectlist .= $row['id'] . "#" . $row['name'] . ",";
+			} else {
+				$projectlist .= $row['id'] . "#" . $row['name'];
+			}
+		}
+		return $projectlist;
+	}	
+}
+
+
 ///////////
 // LOGIN //
 ///////////
@@ -116,7 +186,7 @@ function GetAllProjects($action) {
 			}
 			
 			if ($row['proofreader'] == 0) {
-				$assignlink = "<a href=\"projects.php?a=assign&i=".$row['id']."\"><i class=\"tiny material-icons\">assignment_ind</i></a>&nbsp;";
+				$assignlink = "<a href=\"projects.php?a=prepare-assign&i=".$row['id']."\"><i class=\"tiny material-icons\">assignment_ind</i></a>&nbsp;";
 				$finishlink = "";
 			} else {
 				$assignlink = "";
@@ -131,9 +201,28 @@ function GetAllProjects($action) {
 	}
 }
 
+function AssignProject($project, $translator, $proofreader, $startdate = NULL) {
+	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
+	if ($startdate == NULL) {
+		$started = date('Y-m-d H:i:s', time());
+	} else {
+		$started = date('Y-m-d H:i:s', $startdate);
+	}
+	//$exp = date('Y-m-d H:i:s', time() + $expires_in);
+	if (mysqli_stmt_prepare($stmt, 'UPDATE `projects` SET `translator` = ?, `proofreader` = ?, `started` =? WHERE `id` = ?')) {
+		mysqli_stmt_bind_param($stmt, "iisi", $translator, $proofreader, $started, $project);
+		$rvl = mysqli_stmt_execute($stmt);
+		if ($rvl) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
 function ProjectMarkedComplete($project) {
 	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
-	$finishdate = date('Y-m-d H:i:s', time() + $expires_in);
+	$finishdate = date('Y-m-d H:i:s', time());
 	if (mysqli_stmt_prepare($stmt, 'UPDATE `projects` SET `finished` = ? WHERE `id` = ?')) {
 		mysqli_stmt_bind_param($stmt, "si", $finishdate, $project);
 		$rvl = mysqli_stmt_execute($stmt);
