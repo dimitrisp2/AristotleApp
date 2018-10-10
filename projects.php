@@ -23,23 +23,34 @@ if ($action == "mark") {
 	}
 	$pagecontent = "<h3 class=\"text-center\">Assign Translator and Proofreader to Project</h3><br /><hr /><form action=\"projects.php?a=commit-assign\" method=\"post\" class=\"offset-sm-4\">";
 	$projectcsv = GetProjectsCSV();
-	$projecthtml = ConvertArray2HTMLOptions(explode(",", $projectcsv), "#", "projects", $selected);
+	$projecthtml = ConvertArray2HTMLOptions(explode(",", $projectcsv), "#", "project", $selected);
 	$pagecontent .= "<div class=\"form-group row\"><label for=\"project\" class=\"col-3 col-form-label\">Project</label> <div class=\"col-5\">$projecthtml</div></div> ";
 	$tcsv = GetTranslatorsCSV();
-	$thtml = ConvertArray2HTMLOptions(explode(",", $tcsv), "#", "translators");
-	$pagecontent .= "<div class=\"form-group row\"><label for=\"translators\" class=\"col-3 col-form-label\">Translator</label> <div class=\"col-5\">$thtml</div></div> ";
+	$thtml = ConvertArray2HTMLOptions(explode(",", $tcsv), "#", "translator");
+	$pagecontent .= "<div class=\"form-group row\"><label for=\"translator\" class=\"col-3 col-form-label\">Translator</label> <div class=\"col-5\">$thtml</div></div> ";
 	$proofcsv = GetProofreadersCSV();
-	$proofhtml = ConvertArray2HTMLOptions(explode(",", $proofcsv), "#", "proofreaders");
-	$pagecontent .= "<div class=\"form-group row\"><label for=\"proofreaders\" class=\"col-3 col-form-label\">Proofreader</label> <div class=\"col-5\">$proofhtml</div></div> ";
+	$proofhtml = ConvertArray2HTMLOptions(explode(",", $proofcsv), "#", "proofreader");
+	$pagecontent .= "<div class=\"form-group row\"><label for=\"proofreader\" class=\"col-3 col-form-label\">Proofreader</label> <div class=\"col-5\">$proofhtml</div></div> ";
 	$pagecontent .= "<div class=\"form-group\"><button name=\"submit\" type=\"submit\" class=\"btn btn-primary offset-sm-2\">Submit</button></div>";
 	$pagecontent .= "</form>";
+} else if ($action == "commit-assign") {
+	if (!isset($_POST['project']) || !isset($_POST['translator']) || !isset($_POST['proofreader']) || !intval($_POST['project']) || !intval($_POST['translator']) || !intval($_POST['proofreader'])) {
+		$pagecontent = "Attempted to submit invalid data. Please try again. <a href=\"javascript:history.back()\">Return to the previous page.</a>";
+	} else {
+		$assignproject = AssignProject($_POST['project'], $_POST['translator'], $_POST['proofreader']);
+		//echo $assignproject;
+		if ($assignproject == TRUE) {
+			$pagecontent = "Project was assigned successfully! <a href=\"javascript:history.back()\">Return to the previous page.</a>";
+		} else {
+			$pagecontent = "There was an error while trying to assign the project. Please try again or contact <b>dimitrisp</b> on the DaVinci Discord. <a href=\"javascript:history.back()\">Return to the previous page.</a>";
+		}
+	}
 } else if ($action == "view") {
 	
 } else {
 	$projects = GetAllProjects($action);
 	$pagecontent = "<p class=\"lead\">Refine View: <a href=\"projects.php\">All</a> | <a href=\"projects.php?a=progress\">Being Translated</a> | <a href=\"projects.php?a=finished\">Finished</a> | <a href=\"projects.php?a=wait\">Not Started</a></p><table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>Translator</th><th>Proofreader</th><th>Started</th><th>Finished</th><th></th></tr></thead><tbody>$projects</tbody></table>";
 }
-
 include("common/head.php");
 ?>
 
