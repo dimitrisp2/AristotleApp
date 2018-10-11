@@ -265,19 +265,28 @@ function GetTasks($action) {
 	}
 }
 
-function GetTaskReplies($taskid) {
-	echo "Task id: " . $taskid;
-	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT * FROM `taskmsg` WHERE `parentid` = ". $taskid ." ORDER BY `id` ASC");
-	
+function GetTask($taskid) {
+	//echo "Task id: " . $taskid;
+	$replies = "";
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `t`.`submitted` AS `submitted`, `t`.`title` AS `title`, `t`.`message` AS message, `p`.`name` AS `projectname`, `u1`.`username` AS `sender` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `t`.`project` = `p`.`id` JOIN `users` AS `u1` ON `t`.`user` = `u1`.`id` WHERE `t`.`id` = ". $taskid .";");
 	if ($result) {
-		$replies = "";
 		while ($row = mysqli_fetch_assoc($result)) {
-			print_r($row);
+			$replies .= "<h3 class=\"text-center\">Task ".$row['title']."</h3><div class=\"col-lg-12 border\"> by <a href=\"https://steemit.com/@" . $row['sender'] . "\">" . $row['sender'] . "</a> - Date: " . $row['submitted'] . "<hr />" . $row['message'] . "</div>";
+		}
+	} else {
+		return "Error fetching the Task's thread. Please <a href=\"javascript:history.back()\">return to the previous page</a> and try again. If the problem persists, contact <b>dimitrisp</b> on the DaVinci Discord server.";
+	}
+	
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `t`.`message` AS `message`, `t`.`submitted` AS `submitted`, `u1`.`username` AS `sender` FROM `taskmsg` AS `t` JOIN `users` AS `u1` ON `t`.`user` = `u1`.`id` WHERE `t`.`parentid` = ". $taskid ." ORDER BY `t`.`id` ASC");	
+	if ($result) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			//print_r($row);
+			$replies .= "<br /><div class=\"col-lg-12 border\"> by <a href=\"https://steemit.com/@" . $row['sender'] . "\">" . $row['sender'] . "</a> - Date: " . $row['submitted'] . "<hr />" . $row['message'] . "</div>";
 		}
 		return $replies;
 	} else {
 		// Error running the query. Return error.
-		echo "unexpectederror";
+		return "Error fetching the Task's thread. Please <a href=\"javascript:history.back()\">return to the previous page</a> and try again. If the problem persists, contact <b>dimitrisp</b> on the DaVinci Discord server.";
 	}
 }
 
