@@ -39,10 +39,10 @@ if ($action == "mark") {
 	}
 } else if ($action == "showall" || $action == "resolved") {
 	$tasklist = GetTasks($action);
-	$pagecontent = "<p class=\"lead\">Refine view: <a href=\"tasks.php?a=showall\">All</a> | <a href=\"tasks.php\">In Progress</a> | <a href=\"tasks.php?a=resolved\">Resolved</a></p><table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>User</th><th>Title</th><th>Date</th><th></th></tr></thead><tbody>$tasklist</tbody></table>";
+	$pagecontent = "<p class=\"lead\">Refine view: <a href=\"tasks.php?a=showall\">All</a> | <a href=\"tasks.php\">In Progress</a> | <a href=\"tasks.php?a=resolved\">Resolved</a> | <a href=\"tasks.php?a=new-task\" class=\"text-white bg-secondary\">New Task</a></p><table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>User</th><th>Title</th><th>Date</th><th></th></tr></thead><tbody>$tasklist</tbody></table>";
 } else {
 	$tasklist = GetTasks(NULL);
-	$pagecontent = "<p class=\"lead\">Refine view: <a href=\"tasks.php?a=showall\">All</a> | <a href=\"tasks.php\">In Progress</a> | <a href=\"tasks.php?a=resolved\">Resolved</a></p><table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>User</th><th>Title</th><th>Date</th><th></th></tr></thead><tbody>$tasklist</tbody></table>";
+	$pagecontent = "<p class=\"lead\">Refine view: <a href=\"tasks.php?a=showall\">All</a> | <a href=\"tasks.php\">In Progress</a> | <a href=\"tasks.php?a=resolved\">Resolved</a> | <a href=\"tasks.php?a=new-task\" class=\"text-white bg-secondary\">New Task</a></p><table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>User</th><th>Title</th><th>Date</th><th></th></tr></thead><tbody>$tasklist</tbody></table>";
 }
 
 
