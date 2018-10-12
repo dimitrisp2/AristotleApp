@@ -68,7 +68,7 @@ openSQL();
 // $name will be used as the field's HTML name
 // $selectedid will be used to mark a certain value as preselected
 function ConvertArray2HTMLOptions($arrayinput, $seperator, $name, $selectedid = NULL) {
-	$HTMLOptions = "<select name=\"". $name ."\" id=\"". $name ."\">  class=\"form-control\"";
+	$HTMLOptions = "<select name=\"". $name ."\" id=\"". $name ."\"  class=\"custom-select\">";
 	foreach ($arrayinput as $item) {
 		$thisitem = explode($seperator, $item);
 		if ((!is_null($selectedid) || $selectedid != 0) AND ($thisitem['0'] == $selectedid)) {
@@ -121,10 +121,10 @@ function GetProofreadersCSV() {
 }
 
 // Get a CSV list of the projects to be manipulated as needed throughout the Aristotle App. 
-// Will only get projects without a translator, by design, to avoid re-assigning a project by mistake.
-// An "Edit Translator" functionality should/will be added to re-assign a project if needed.
+// Can be used to re-assign a project if needed.
+
 function GetProjectsCSV() {
-	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id`, `name` FROM `projects` WHERE `translator` = 0 ORDER BY `name` ASC");
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id`, `name` FROM `projects` ORDER BY `name` ASC");
 	if ($result) {
 		$projectlist = "";
 		$projects = mysqli_num_rows($result);
@@ -139,6 +139,22 @@ function GetProjectsCSV() {
 		}
 		return $projectlist;
 	}	
+}
+
+// Get the ID of the user set in $username
+function GetUserID($username) {
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id` FROM `users` WHERE `username` = '" . $username . "'");
+	if ($result) {
+		$userfound = mysqli_num_rows($result);
+		if ($userfound == 1) {			
+			$row = mysqli_fetch_assoc($result);
+			return $row['id'];
+		} else {
+			return "notfound";
+		}
+	} else {
+		return "error";
+	}
 }
 
 
@@ -337,8 +353,25 @@ function GetTask($taskid) {
 	}
 }
 
-function SubmitNewTask() {
-	
+// Submit new task to the database.
+// Discord notifications could be added to enhance the user experience.
+function SubmitNewTask($from, $to, $title, $msg, $project) {
+	// Prepare the connection
+	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
+	// Get submitted user's ($from) ID
+	$fromid = GetUserID($from);
+	// Prepare the statement and add all needed variables
+	if (mysqli_stmt_prepare($stmt, 'INSERT INTO `tasks` (`project`, `user`, `recipient`, `title`, `message`, `resolved`) VALUES (?, ?, ?, ?, ?, 0)')) {
+		mysqli_stmt_bind_param($stmt, "iiiss", $project, $fromid, $to, $title, $msg);
+		$rvl = mysqli_stmt_execute($stmt);
+		
+		// Return if true or false to inform the user if it was a success.
+		if ($rvl) {
+			return "Task has been added to the database successfully";
+		} else {
+			return "Error adding the Task to the database. Please <a href=\"javascript:history.back()\">return to the previous page</a> and try again. If the problem persists, contact <b>dimitrisp</b> on the DaVinci Discord server.";
+		}
+	}	
 }
 
 function SubmitEditTask() {
