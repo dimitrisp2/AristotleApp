@@ -49,6 +49,17 @@ $sqldb = "translator";
 //						//
 //////////////////////////
 
+$user = require 'checkauth.php';
+if ((isset($_COOKIE['username'])) && ($_COOKIE['username'] != $user)) {
+	unset($_COOKIE['username']);
+	unset($_COOKIE['code']);
+	setcookie('username', null, -1);
+	setcookie('code', null, -1);
+	Header("Location: index.php");
+	die();
+} else {
+	//echo "All is fine";
+}
 
 function openSQL() {
 	$GLOBALS['sqlcon'] = mysqli_connect($GLOBALS['sqlserver'], $GLOBALS['sqluser'], $GLOBALS['sqlpass'], $GLOBALS['sqldb']);
