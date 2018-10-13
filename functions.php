@@ -374,8 +374,25 @@ function SubmitNewTask($from, $to, $title, $msg, $project) {
 	}	
 }
 
-function SubmitEditTask() {
-	
+function SubmitReplyTask($from, $msg, $taskid) {
+	// Prepare the connection
+	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
+	// Get submitted user's ($from) ID
+	$fromid = GetUserID($from);
+	// Prepare the statement and add reply to the database
+	if (mysqli_stmt_prepare($stmt, 'INSERT INTO `taskmsg` (`user`, `parentid`, `message`) VALUES (?, ?, ?)')) {
+		mysqli_stmt_bind_param($stmt, "iis", $fromid, $taskid, $msg);
+		$rvl = mysqli_stmt_execute($stmt);
+		
+		// Return if true or false to inform the user if it was a success.
+		if ($rvl) {
+			return "Task reply has been added to the database successfully";
+		} else {
+			return "Error adding your reply to the database. Please <a href=\"javascript:history.back()\">return to the previous page</a> and try again. If the problem persists, contact <b>dimitrisp</b> on the DaVinci Discord server.";
+		}
+	} else {
+		return "Error adding your reply to the database. Please <a href=\"javascript:history.back()\">return to the previous page</a> and try again. If the problem persists, contact <b>dimitrisp</b> on the DaVinci Discord server.";		
+	}
 }
 
 function SubmitCompleteTask() {

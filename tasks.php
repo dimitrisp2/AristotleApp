@@ -12,6 +12,11 @@ if ($action == "mark") {
 } else if ($action == "commit-reply") {
 	// Add a reply to task (form is already on the task page)
 	$page = "Reply to Task";
+	print_r($_POST);
+	$taskid = $_POST['id'];
+	$from = $_COOKIE['username'];
+	$msg = $_POST['taskreply'];
+	$pagecontent = SubmitReplyTask($from, $msg, $taskid);
 } else if ($action == "commit-new") {
 	// Submit new task's details to the database. Form is located on "new-task"
 	$page = "Submit New Task";
@@ -35,6 +40,7 @@ if ($action == "mark") {
 		$pagecontent = "Invalid arguments passed to the app. Please <a href=\"javascript:history.back()\">return to the previous page</a> and try again. If the problem persists, contact <b>dimitrisp</b> on the DaVinci Discord server.";
 	} else {
 		$pagecontent = GetTask($_GET['i']);
+		$pagecontent .= "<hr /><form action=\"tasks.php?a=commit-reply\" method=\"post\"><div class=\"form-group\"><label for=\"taskreply\">Reply to the Task</label> <textarea id=\"taskreply\" name=\"taskreply\" cols=\"40\" rows=\"5\" class=\"form-control\"></textarea></div><input type=\"hidden\" name=\"id\" value=\"".$_GET['i']."\"><div class=\"form-group\"><button name=\"submit\" type=\"submit\" class=\"btn btn-primary\">Submit</button></div></form>";
 		$page = "View Task";
 	}
 } else if ($action == "showall" || $action == "resolved") {
