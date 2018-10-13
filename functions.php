@@ -395,8 +395,23 @@ function SubmitReplyTask($from, $msg, $taskid) {
 	}
 }
 
-function SubmitCompleteTask() {
-	
+function SubmitCompleteTask($task, $iscomplete) {
+	// Prepare the connection
+	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
+	// Prepare the statement and add reply to the database
+	if (mysqli_stmt_prepare($stmt, 'UPDATE `tasks` SET `resolved` = ? WHERE `id` = ?')) {
+		mysqli_stmt_bind_param($stmt, "ii", $iscomplete, $task);
+		$rvl = mysqli_stmt_execute($stmt);
+		
+		// Return if true or false to inform the user if it was a success.
+		if ($rvl) {
+			return "Task has been marked as completed. You can keep adding replies if you want to.";
+		} else {
+			return "Error marking the task as completed. Please <a href=\"javascript:history.back()\">return to the previous page</a> and try again. If the problem persists, contact <b>dimitrisp</b> on the DaVinci Discord server.";
+		}
+	} else {
+		return "Error marking the task as completed. Please <a href=\"javascript:history.back()\">return to the previous page</a> and try again. If the problem persists, contact <b>dimitrisp</b> on the DaVinci Discord server.";
+	}	
 }
 
 function SubmitIncompleteTask() {

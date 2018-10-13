@@ -9,6 +9,9 @@ if (isset($_GET['a'])) {
 
 if ($action == "mark") {
 	// Mark task as complete
+	$page = "Mark Task as Completed";
+	$task = $_GET['i'];
+	$pagecontent = SubmitCompleteTask($task, "1");
 } else if ($action == "commit-reply") {
 	// Add a reply to task (form is already on the task page)
 	$page = "Reply to Task";
