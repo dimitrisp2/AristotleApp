@@ -48,19 +48,6 @@ $sqldb = "translator";
 // GENERIC DB FUNCTIONS //
 //						//
 //////////////////////////
-
-$user = require 'checkauth.php';
-if ((isset($_COOKIE['username'])) && ($_COOKIE['username'] != $user)) {
-	unset($_COOKIE['username']);
-	unset($_COOKIE['code']);
-	setcookie('username', null, -1);
-	setcookie('code', null, -1);
-	Header("Location: index.php");
-	die();
-} else {
-	//echo "All is fine";
-}
-
 function openSQL() {
 	$GLOBALS['sqlcon'] = mysqli_connect($GLOBALS['sqlserver'], $GLOBALS['sqluser'], $GLOBALS['sqlpass'], $GLOBALS['sqldb']);
 	if (mysqli_connect_error()) {
@@ -73,6 +60,49 @@ function openSQL() {
 }
 
 openSQL();
+
+$user = require 'checkauth.php';
+if ((isset($_COOKIE['username'])) && ($_COOKIE['username'] != $user) && (basename($_SERVER['PHP_SELF']) != "index.php")) {
+	unset($_COOKIE['username']);
+	unset($_COOKIE['code']);
+	setcookie('username', null, -1);
+	setcookie('code', null, -1);
+	Header("Location: index.php");
+	die();
+} else if (isset($_COOKIE['username'])) {
+	$hasaccess = CheckUserAccess($_COOKIE['username']);
+	if ($hasaccess <= 0) {
+		unset($_COOKIE['username']);
+		unset($_COOKIE['code']);
+		setcookie('username', null, -1);
+		setcookie('code', null, -1);
+		header("Location: error.php?i=".$hasaccess);
+		die();
+	}
+} else if ((!isset($_COOKIE['username'])) && ((basename($_SERVER['PHP_SELF']) != "index.php") && (basename($_SERVER['PHP_SELF']) != "callback.php"))) {
+	header("Location: error.php?i=-3");
+	die();
+} else {
+	// All is cool.
+}
+
+// This will check if the user who tried to login, has any access level to this app, and return it.
+function CheckUserAccess($username) {
+	$username = mysqli_real_escape_string($GLOBALS['sqlcon'], $username);
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id`, `role` FROM `users` WHERE `username` = '".$username."';");
+	if ($result) {
+		$proofreaders = mysqli_num_rows($result);
+		if ($proofreaders == 1) {
+			$row = mysqli_fetch_assoc($result);
+			return $row['role'];
+		} else {
+			return -1;
+		}
+	} else {
+		//return -2;
+		echo mysqli_error($GLOBALS['sqlconnect']);
+	}
+}
 
 // This will be used to convert a PHP array to an options list.
 // $arrayinput is generated from GetTranslatorsCSV(), GetProofreadersCSV() and GetProjectsCSV(). These functions may get merged in the future.
