@@ -466,7 +466,39 @@ function showanddie($errortoshow) {
 	die();
 }
 
-//closeSQL();
+///////////
+// USERS //
+///////////
+
+function GetAllUsers() {
+	// Prepare the MySQL-depended action into a variable that will be used on the query
+
+	// Fetch all tasks that fullfil our criteria
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT * FROM `users` ORDER BY `username` ASC");
+	
+	if ($result) {
+		// Initialise an empty variable to store the content
+		$users = "";
+		// Get all tasks
+		while ($row = mysqli_fetch_assoc($result)) {
+			//print_r($row);
+			if ($row['role'] == 1) {
+				$role = "Translator";
+			} else if ($row['role'] == 2) {
+				$role = "Proofreader";
+			} else if ($row['role'] == 3) {
+				$role = "Translator & Proofreader";
+			} else {
+				$role = "No longer member";
+			}
+			$users .= "<tr><td>".$row['username']."</td><td>".$role."</td><td>".$row['hired']."</td><td>".$row['dismissed']."</td><td></a></td>";
+		}
+		return $users;
+	} else {
+		// Error running the query. Return error.
+		echo "unexpectederror";
+	}
+}
 
 function closeSQL() {
 	global $sqlcon;
