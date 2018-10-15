@@ -401,7 +401,7 @@ function SubmitReplyTask($from, $msg, $taskid) {
 		
 		// Return if true or false to inform the user if it was a success.
 		if ($rvl) {
-			return "Task reply has been added to the database successfully";
+			return "Task reply has been added to the database successfully. <a href=\"tasks.php?a=view&i=".$taskid."\">Return to the thread</a>";
 		} else {
 			return "Error adding your reply to the database. Please <a href=\"javascript:history.back()\">return to the previous page</a> and try again. If the problem persists, contact <b>dimitrisp</b> on the DaVinci Discord server.";
 		}
