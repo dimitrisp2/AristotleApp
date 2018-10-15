@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Φιλοξενητής: 127.0.0.1
--- Χρόνος δημιουργίας: 13 Οκτ 2018 στις 10:06:37
+-- Χρόνος δημιουργίας: 15 Οκτ 2018 στις 08:25:42
 -- Έκδοση διακομιστή: 10.1.21-MariaDB
 -- Έκδοση PHP: 7.1.2
 
@@ -78,6 +78,8 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(16) NOT NULL,
   `role` tinyint(4) NOT NULL COMMENT '1 = translator, 2 = proofreader, 3 = both, 0 = noaccess',
+  `hired` date DEFAULT NULL,
+  `dismissed` date DEFAULT NULL,
   `authkey` tinytext,
   `expiresin` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -118,22 +120,22 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT για πίνακα `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT για πίνακα `taskmsg`
 --
 ALTER TABLE `taskmsg`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT για πίνακα `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT για πίνακα `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
