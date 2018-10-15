@@ -29,6 +29,9 @@
                 <a class="nav-item nav-link" href="projects.php">Projects</a>
                 <a class="nav-item nav-link" href="tasks.php">Tasks</a>
                 <a class="nav-item nav-link" href="users.php">Users</a>
+				<div class="btn-group">
+					<?php echo GetMenu(); ?>
+				</div>
             </div>
         </div>
     </nav>

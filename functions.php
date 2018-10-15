@@ -15,39 +15,13 @@ $sqlpass = "";
 // MySQL DB
 $sqldb = "translator";
 
-////////////////////////////////////////////////////////////
-// 						functions.php					  //
-// Contains all the functions that interact with MySQL DB //
-//														  //
-//														  //
-// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
-// 						  ARE DOING						  //
-//														  //
-// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
-// 						  ARE DOING						  //
-//														  //
-// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
-// 						  ARE DOING						  //
-//														  //
-// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
-// 						  ARE DOING						  //
-//														  //
-// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
-// 						  ARE DOING						  //
-//														  //
-// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
-// 						  ARE DOING						  //
-//														  //
-// DO NOT EDIT BELOW THIS LINE IF YOU DON'T KNOW WHAT YOU //
-// 						  ARE DOING						  //
-//														  //
-////////////////////////////////////////////////////////////
+// Below this line, this file holds all the crucial code of the app.
+// Please do not edit anything if you don't know what you are doing
 
 //////////////////////////
-//						//
 // GENERIC DB FUNCTIONS //
-//						//
 //////////////////////////
+
 function openSQL() {
 	$GLOBALS['sqlcon'] = mysqli_connect($GLOBALS['sqlserver'], $GLOBALS['sqluser'], $GLOBALS['sqlpass'], $GLOBALS['sqldb']);
 	if (mysqli_connect_error()) {
@@ -498,6 +472,41 @@ function GetAllUsers() {
 		// Error running the query. Return error.
 		echo "unexpectederror";
 	}
+}
+
+function GetMainPageContent() {
+	if (isset($_COOKIE['username'])) {
+		$hasaccess = CheckUserAccess($_COOKIE['username']);
+	} else {
+		$hasaccess = 0;
+	}
+	if ($hasaccess > 0) {
+		return "Welcome, " . $_COOKIE['username'] . ". You are already logged in, and you are registered as a member with access to the app, so feel free to stick around.";
+	} else {
+		return "This app is only intended for use by the <?php echo $teamname; ?> Translation Team. You need to login before you proceed to use anything in this app!<br /><a href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=". $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "/callback.php\"; ?>&scope=login\" class=\"font-weight-bold\">Secure login via SteemConnect</a>";
+	}
+	
+}
+
+function GetMenu() {
+	if (isset($_COOKIE['username'])) {
+		$hasaccess = CheckUserAccess($_COOKIE['username']);
+	} else {
+		$hasaccess = 0;
+	}
+	if ($hasaccess > 0) {
+		return "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Welcome ".$_COOKIE['username']."</button><div class=\"dropdown-menu dropdown-menu-right\"><a class=\"btn dropdown-item\" href=\"logout.php\">Logout</a></div>";
+	} else {
+		return "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Welcome, Guest</button><div class=\"dropdown-menu dropdown-menu-right\"><a class=\"btn dropdown-item\" href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=".  $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "/callback.php&scope=login\">Login via SteemConnect</a></div>";
+	}
+}
+
+function LogOut() {
+	unset($_COOKIE['username']);
+	unset($_COOKIE['code']);
+	setcookie('username', null, -1);
+	setcookie('code', null, -1);
+	Header("Location: index.php");
 }
 
 function closeSQL() {
