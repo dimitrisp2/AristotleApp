@@ -323,8 +323,14 @@ function GetAllProjects($action) {
 				$assignlink = "";
 			}
 			
+			if (($row['github'] == "") || ($row['github'] == NULL)) {
+				$linkedrepos = "[<a href=\"".$row['crowdin']."\">C</a>]";
+			} else {
+				$linkedrepos = "[<a href=\"".$row['github']."\">G</a>|<a href=\"".$row['crowdin']."\">C</a>]";
+			}
+			
 			// Add the project to the list
-			$allprojects .= "<tr><td>".$row['projectname']."</td><td>".$row['translatorname']."</td><td>".$row['proofreadername']."</td><td>".$started."</td><td>".$finished."</td><td>".$assignlink."<a href=\"projects.php?a=view&i=".$row['id']."\"><i class=\"tiny material-icons\">remove_red_eye</i></a>&nbsp;".$finishlink."</td>";
+			$allprojects .= "<tr><td>".$row['projectname']." ".$linkedrepos."</td><td>".$row['translatorname']."</td><td>".$row['proofreadername']."</td><td>".$started."</td><td>".$finished."</td><td>".$assignlink."<a href=\"projects.php?a=view&i=".$row['id']."\"><i class=\"tiny material-icons\">remove_red_eye</i></a>&nbsp;".$finishlink."</td>";
 		}
 		return $allprojects;
 	} else {
