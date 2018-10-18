@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Φιλοξενητής: 127.0.0.1
--- Χρόνος δημιουργίας: 15 Οκτ 2018 στις 08:25:42
+-- Χρόνος δημιουργίας: 18 Οκτ 2018 στις 13:01:00
 -- Έκδοση διακομιστή: 10.1.21-MariaDB
 -- Έκδοση PHP: 7.1.2
 
@@ -23,6 +23,23 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Δομή πίνακα για τον πίνακα `contributions`
+--
+
+CREATE TABLE `contributions` (
+  `id` int(11) NOT NULL,
+  `project` int(11) NOT NULL,
+  `translator` int(11) NOT NULL,
+  `proofreader` int(11) DEFAULT NULL,
+  `link` tinytext NOT NULL,
+  `submit` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `review` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `vote-utopian` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Δομή πίνακα για τον πίνακα `projects`
 --
 
@@ -31,8 +48,8 @@ CREATE TABLE `projects` (
   `name` tinytext NOT NULL,
   `crowdin` text NOT NULL,
   `github` text,
-  `translator` tinyint(4) DEFAULT NULL,
-  `proofreader` tinyint(4) DEFAULT NULL,
+  `translator` tinytext,
+  `proofreader` tinytext,
   `started` timestamp NULL DEFAULT NULL,
   `finished` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -89,6 +106,12 @@ CREATE TABLE `users` (
 --
 
 --
+-- Ευρετήρια για πίνακα `contributions`
+--
+ALTER TABLE `contributions`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Ευρετήρια για πίνακα `projects`
 --
 ALTER TABLE `projects`
@@ -116,6 +139,11 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT για άχρηστους πίνακες
 --
 
+--
+-- AUTO_INCREMENT για πίνακα `contributions`
+--
+ALTER TABLE `contributions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT για πίνακα `projects`
 --
