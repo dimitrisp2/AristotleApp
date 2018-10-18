@@ -98,8 +98,12 @@ function ConvertArray2CSV($arrayinput, $seperator) {
 // $arrayinput is generated from GetTranslatorsCSV(), GetProofreadersCSV() and GetProjectsCSV(). These functions may get merged in the future.
 // $name will be used as the field's HTML name
 // $selectedid will be used to mark a certain value as preselected
-function ConvertArray2HTMLOptions($arrayinput, $seperator, $name, $selectedid = NULL) {
+function ConvertArray2HTMLOptions($arrayinput, $seperator, $name, $selectedid = NULL, $addempty = FALSE) {
+	echo $addempty;
 	$HTMLOptions = "<select name=\"". $name ."\" id=\"". $name ."\"  class=\"custom-select\">";
+	if ($addempty) {
+		$HTMLOptions .= "<option value=\"na\">No Selection</option>";
+	}
 	foreach ($arrayinput as $item) {
 		$thisitem = explode($seperator, $item);
 		if ((!is_null($selectedid) || $selectedid != 0) AND ($thisitem['0'] == $selectedid)) {
@@ -202,28 +206,46 @@ function GetUserID($username) {
 // CONTRIBUTIONS //
 ///////////////////
 
-function GetContributionList($user = NULL, $project = NULL) {
+function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = NULL, $voted = NULL, $reviewed = NULL, $title = NULL) {
 	// prepare SQL action if either or both $user and $project are set.
-	if ((!is_null($user)) || (!is_null($project))) {
+	if ((!is_null($user)) || (!is_null($project)) || (!is_null($from)) || (!is_null($to)) || (!is_null($voted)) || (!is_null($reviewed))) {
 		$sqlaction = "WHERE ";
-		if (!is_null($user)) {
-			$sqlaction = $sqlaction . "`translator` = " . $user . " ";
-		} else if (!is_null($project)) {
-			$sqlaction = $sqlaction . "`project` = " . $project . " ";
-		}
 	} else {
 		$sqlaction = "";
 	}
-	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `c`.`id` AS `cid`, `c`.`translator` AS `tid`, `c`.`proofreader` AS `pid`, `c`.`link` AS `contrlink`, `c`.`submit` AS `submitdate`, `c`.`review` AS `reviewdate`, `c`.`vote-utopian` AS `vote-utopian`, `p`.`name` AS `projectname`, `p`.`crowdin` AS `crowdinlink`, `u1`.`username` AS `translator`, `u2`.`username` AS `proofreader` FROM `contributions` AS `c` LEFT JOIN `users` AS `u1` on `c`.`translator` = `u1`.`id` LEFT JOIN `users` AS `u2` on `c`.`proofreader` = `u2`.`id` LEFT JOIN `projects` AS `p` ON `c`.`project` = `p`.`id` ORDER BY `c`.`submit` DESC");
+	if (!is_null($user)) {
+		$sqlaction = $sqlaction . "`translator` = " . $user . " ";
+	} 
+	
+	if (!is_null($project)) {
+		$sqlaction = $sqlaction . "`project` = " . $project . " ";
+	}
+	
+	if (!is_null($from)) {
+		$sqlaction = $sqlaction . "`submit` >= " . $from . " ";
+	}
+	
+	if (!is_null($to)) {
+		$sqlaction = $sqlaction . "`submit` <= " . $to . " ";
+	}
+
+	if (!is_null($voted)) {
+		$sqlaction = $sqlaction . "`vote-utopian` = " . $voted . " ";
+	}
+
+	if (!is_null($reviewed)) {
+		$sqlaction = $sqlaction . "`review` = " . $reviewed . " ";
+	}
+
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `c`.`id` AS `cid`, `c`.`translator` AS `tid`, `c`.`proofreader` AS `pid`, `c`.`link` AS `contrlink`, `c`.`submit` AS `submitdate`, `c`.`review` AS `reviewdate`, `c`.`vote-utopian` AS `vote-utopian`, `p`.`name` AS `projectname`, `p`.`crowdin` AS `crowdinlink`, `p`.`github` AS `githublink`, `u1`.`username` AS `translator`, `u2`.`username` AS `proofreader` FROM `contributions` AS `c` LEFT JOIN `users` AS `u1` on `c`.`translator` = `u1`.`id` LEFT JOIN `users` AS `u2` on `c`.`proofreader` = `u2`.`id` LEFT JOIN `projects` AS `p` ON `c`.`project` = `p`.`id` ".$sqlaction."ORDER BY `c`.`submit` DESC");
 	
 	if ($result) {
 		// Initialise an empty variable to store the content
 		$contributionlist = "";
 		// Get all projects
+		$titled = FALSE;
+		$tabled = FALSE;
 		while ($row = mysqli_fetch_assoc($result)) {
-			// fields:
-			// translator^v, proofreader^v, submitdate^v, reviewdate^v, vote-utopian^v
-			// projectname^v, crowdinlink^v, contrlink^v, cid
 			$translator = $row['translator'];
 			$submit = date("d/m/Y", strtotime($row['submitdate']));
 			$project = $row['projectname'];
@@ -232,7 +254,7 @@ function GetContributionList($user = NULL, $project = NULL) {
 			if ($row['reviewdate'] == NULL) {
 				$review = "Not yet";
 			} else {
-				$review = date("d/m/Y", strtotime($row['reviewdate'])) . " (".$row['proofreader'].")";
+				$review = date("d/m/Y", strtotime($row['reviewdate'])) . "<br />(".$row['proofreader'].")";
 			}
 			
 			if ($row['vote-utopian'] == 0) {
@@ -241,8 +263,34 @@ function GetContributionList($user = NULL, $project = NULL) {
 				$voteutopian = "Voted";
 			}
 			
+			if (!$titled){
+				$titled = TRUE;
+				switch ($title) {
+					case "project":
+						if (($row['githublink'] == "") || ($row['githublink'] == NULL)) {
+							$linkedrepos = "[<a href=\"".$crowdin."\">Crowdin</a>]";
+						} else {
+							$linkedrepos = "[<a href=\"".$row['githublink']."\">Github</a>|<a href=\"".$crowdin."\">Crowdin</a>]";
+						}
+						$contributioncount = mysqli_num_rows($result);
+						$GLOBALS['page'] = $row['projectname'] . " Overview";
+						$contributionlist .= "<div class=\"text-center\">View project on: $linkedrepos. <b>$contributioncount</b> Translation Contributions</div>";
+						break;
+					default:
+						break;
+				}
+			}
+			
+			if (!$tabled) {
+				$tabled = TRUE;
+				$contributionlist .= "<table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>Submit</th><th>Review</th><th>Links</th><th>Utopian</th><th></th></tr></thead><tbody>";
+			}
+			
 			// Add the project to the list
-			$contributionlist .= "<tr><td>".$project."</td><td>".$translator."</td><td>".$submit."</td><td>".$review."</td><td><a href=\"".$contributionlink."\" target=\"_blank\">Post</a> | <a href=\"".$crowdin."\" target=\"_blank\">CrowdIn</a></td><td>".$voteutopian."</td><td>(TBC)</td>";
+			$contributionlist .= "<tr><td>".$project."</td><td>".$submit."<br />(".$translator.")</td><td>".$review."</td><td><a href=\"".$contributionlink."\" target=\"_blank\">Post</a> | <a href=\"".$crowdin."\" target=\"_blank\">[C]</a></td><td>".$voteutopian."</td><td>(TBC)</td>";
+		}
+		if ($tabled) {
+			$contributionlist .= "</table>";
 		}
 		return $contributionlist;
 	} else {

@@ -50,7 +50,8 @@ if ($action == "mark") {
 		}
 	}
 } else if ($action == "view") {
-	
+	$page = "Contributions List";
+	$pagecontent = GetContributionList(NULL, $_GET['i'], NULL, NULL, NULL, NULL, "project");
 } else {
 	$projects = GetAllProjects($action);
 	$pagecontent = "<p class=\"lead\">Refine View: <a href=\"projects.php\">All</a> | <a href=\"projects.php?a=progress\">Being Translated</a> | <a href=\"projects.php?a=finished\">Finished</a> | <a href=\"projects.php?a=wait\">Not Started</a></p><table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>Translator</th><th>Proofreader</th><th>Started</th><th>Finished</th><th></th></tr></thead><tbody>$projects</tbody></table>";

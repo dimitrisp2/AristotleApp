@@ -8,8 +8,7 @@ if (isset($_GET['a'])) {
 }
 
 if ($action == "list") {
-	$pagecontent = "<table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>Translator</th><th>Submit</th><th>Review</th><th>Links</th><th>Utopian</th><th></th></tr></thead><tbody>";
-	$pagecontent .= GetContributionList();
+	$pagecontent = GetContributionList();
 } else {
 
 }
