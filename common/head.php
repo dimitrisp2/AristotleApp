@@ -42,6 +42,7 @@
             <div class="navbar-nav">
                 <a class="nav-item nav-link active" href="index.php">Home</a>
                 <a class="nav-item nav-link" href="projects.php">Projects</a>
+                <a class="nav-item nav-link" href="contributions.php">Contributions</a>
                 <a class="nav-item nav-link" href="tasks.php">Tasks</a>
                 <a class="nav-item nav-link" href="users.php">Users</a>
 				<div class="btn-group">

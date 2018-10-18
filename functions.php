@@ -172,6 +172,58 @@ function GetUserID($username) {
 	}
 }
 
+///////////////////
+// CONTRIBUTIONS //
+///////////////////
+
+function GetContributionList($user = NULL, $project = NULL) {
+	// prepare SQL action if either or both $user and $project are set.
+	if ((!is_null($user)) || (!is_null($project))) {
+		$sqlaction = "WHERE ";
+		if (!is_null($user)) {
+			$sqlaction = $sqlaction . "`translator` = " . $user . " ";
+		} else if (!is_null($project)) {
+			$sqlaction = $sqlaction . "`project` = " . $project . " ";
+		}
+	} else {
+		$sqlaction = "";
+	}
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `c`.`id` AS `cid`, `c`.`translator` AS `tid`, `c`.`proofreader` AS `pid`, `c`.`link` AS `contrlink`, `c`.`submit` AS `submitdate`, `c`.`review` AS `reviewdate`, `c`.`vote-utopian` AS `vote-utopian`, `p`.`name` AS `projectname`, `p`.`crowdin` AS `crowdinlink`, `u1`.`username` AS `translator`, `u2`.`username` AS `proofreader` FROM `contributions` AS `c` LEFT JOIN `users` AS `u1` on `c`.`translator` = `u1`.`id` LEFT JOIN `users` AS `u2` on `c`.`proofreader` = `u2`.`id` LEFT JOIN `projects` AS `p` ON `c`.`project` = `p`.`id` ORDER BY `c`.`submit` DESC");
+	
+	if ($result) {
+		// Initialise an empty variable to store the content
+		$contributionlist = "";
+		// Get all projects
+		while ($row = mysqli_fetch_assoc($result)) {
+			// fields:
+			// translator^v, proofreader^v, submitdate^v, reviewdate^v, vote-utopian^v
+			// projectname^v, crowdinlink^v, contrlink^v, cid
+			$translator = $row['translator'];
+			$submit = date("d/m/Y", strtotime($row['submitdate']));
+			$project = $row['projectname'];
+			$contributionlink = $row['contrlink'];
+			$crowdin = $row['crowdinlink'];
+			if ($row['reviewdate'] == NULL) {
+				$review = "Not yet";
+			} else {
+				$review = date("d/m/Y", strtotime($row['reviewdate'])) . " (".$row['proofreader'].")";
+			}
+			
+			if ($row['vote-utopian'] == 0) {
+				$voteutopian = "Not Voted";
+			} else {
+				$voteutopian = "Voted";
+			}
+			
+			// Add the project to the list
+			$contributionlist .= "<tr><td>".$project."</td><td>".$translator."</td><td>".$submit."</td><td>".$review."</td><td><a href=\"".$contributionlink."\" target=\"_blank\">Post</a> | <a href=\"".$crowdin."\" target=\"_blank\">CrowdIn</a></td><td>".$voteutopian."</td><td>(TBC)</td>";
+		}
+		return $contributionlist;
+	} else {
+		// Error running the query. Return error.
+		echo "unexpectederror";
+	}
+}
 
 ///////////
 // LOGIN //
