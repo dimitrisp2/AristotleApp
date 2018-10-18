@@ -26,10 +26,10 @@ if ($action == "mark") {
 	$projecthtml = ConvertArray2HTMLOptions(explode(",", $projectcsv), "#", "project", $selected);
 	$pagecontent .= "<div class=\"form-group row\"><label for=\"project\" class=\"col-3 col-form-label\">Project</label> <div class=\"col-5\">$projecthtml</div></div> ";
 	$tcsv = GetTranslatorsCSV();
-	$thtml = ConvertArray2HTMLOptions(explode(",", $tcsv), "#", "translator");
+	$thtml = ConvertArray2HTMLCheckbox(explode(",", $tcsv), "#", "translator");
 	$pagecontent .= "<div class=\"form-group row\"><label for=\"translator\" class=\"col-3 col-form-label\">Translator</label> <div class=\"col-5\">$thtml</div></div> ";
 	$proofcsv = GetProofreadersCSV();
-	$proofhtml = ConvertArray2HTMLOptions(explode(",", $proofcsv), "#", "proofreader");
+	$proofhtml = ConvertArray2HTMLCheckbox(explode(",", $proofcsv), "#", "proofreader");
 	$pagecontent .= "<div class=\"form-group row\"><label for=\"proofreader\" class=\"col-3 col-form-label\">Proofreader</label> <div class=\"col-5\">$proofhtml</div></div> ";
 	$pagecontent .= "<div class=\"form-group\"><button name=\"submit\" type=\"submit\" class=\"btn btn-primary offset-sm-2\">Submit</button></div>";
 	$pagecontent .= "</form>";
@@ -37,7 +37,11 @@ if ($action == "mark") {
 	if (!isset($_POST['project']) || !isset($_POST['translator']) || !isset($_POST['proofreader']) || !intval($_POST['project']) || !intval($_POST['translator']) || !intval($_POST['proofreader'])) {
 		$pagecontent = "Attempted to submit invalid data. Please try again. <a href=\"javascript:history.back()\">Return to the previous page.</a>";
 	} else {
-		$assignproject = AssignProject($_POST['project'], $_POST['translator'], $_POST['proofreader']);
+		$translators = ConvertArray2CSV($_POST['translator'], ",");
+		echo $translators;
+		$proofreaders = ConvertArray2CSV($_POST['proofreader'], ",");
+		echo $proofreaders;
+		$assignproject = AssignProject($_POST['project'], $translators, $proofreaders);
 		//echo $assignproject;
 		if ($assignproject == TRUE) {
 			$pagecontent = "Project was assigned successfully! <a href=\"javascript:history.back()\">Return to the previous page.</a>";

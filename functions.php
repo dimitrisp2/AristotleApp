@@ -78,6 +78,22 @@ function CheckUserAccess($username) {
 	}
 }
 
+function ConvertArray2CSV($arrayinput, $seperator) {
+	$arraycount = count($arrayinput);
+	$thisarray = "";
+	$i = 0;
+	foreach ($arrayinput as $item) {
+		$thisarray .= $item;
+		$i++;
+		if ($i == $arraycount) {
+			
+		} else {
+			$thisarray .= ",";
+		}
+	}
+	return $thisarray;
+}
+
 // This will be used to convert a PHP array to an options list.
 // $arrayinput is generated from GetTranslatorsCSV(), GetProofreadersCSV() and GetProjectsCSV(). These functions may get merged in the future.
 // $name will be used as the field's HTML name
@@ -95,6 +111,16 @@ function ConvertArray2HTMLOptions($arrayinput, $seperator, $name, $selectedid = 
 	}
 	$HTMLOptions .= "</select>";
 	return $HTMLOptions;
+}
+
+function ConvertArray2HTMLCheckbox($arrayinput, $seperator, $name) {
+	$HTMLSelect = "";
+	foreach ($arrayinput as $item) {
+		$thisitem = explode($seperator, $item);
+		$HTMLSelect .= "<input type=\"checkbox\" name=\"".$name."[]\" value=\"".$thisitem['0']."\">".$thisitem['1']."</input><br />";
+	}
+	
+	return $HTMLSelect;	
 }
 
 // Get a CSV list of the translators to be manipulated as needed throughout the Aristotle App
@@ -320,8 +346,8 @@ function AssignProject($project, $translator, $proofreader, $startdate = NULL) {
 	}
 	
 	// Prepare the statement and add all needed variables
-	if (mysqli_stmt_prepare($stmt, 'UPDATE `projects` SET `translator` = ?, `proofreader` = ?, `started` =? WHERE `id` = ?')) {
-		mysqli_stmt_bind_param($stmt, "iisi", $translator, $proofreader, $started, $project);
+	if (mysqli_stmt_prepare($stmt, 'UPDATE `projects` SET `translator` = ?, `proofreader` = ?, `started` = ? WHERE `id` = ?')) {
+		mysqli_stmt_bind_param($stmt, "sssi", $translator, $proofreader, $started, $project);
 		$rvl = mysqli_stmt_execute($stmt);
 		
 		// Return if true or false to inform the user if it was a success.
