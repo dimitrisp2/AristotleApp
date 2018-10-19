@@ -99,7 +99,7 @@ function ConvertArray2CSV($arrayinput, $seperator) {
 // $name will be used as the field's HTML name
 // $selectedid will be used to mark a certain value as preselected
 function ConvertArray2HTMLOptions($arrayinput, $seperator, $name, $selectedid = NULL, $addempty = FALSE) {
-	echo $addempty;
+
 	$HTMLOptions = "<select name=\"". $name ."\" id=\"". $name ."\"  class=\"custom-select\">";
 	if ($addempty) {
 		$HTMLOptions .= "<option value=\"na\">No Selection</option>";
@@ -214,31 +214,31 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 		$sqlaction = "";
 	}
 	if (!is_null($user)) {
-		$sqlaction = $sqlaction . "`translator` = " . $user . " ";
+		$sqlaction = $sqlaction . "`c`.`translator` = " . $user . " ";
 	} 
 	
 	if (!is_null($project)) {
-		$sqlaction = $sqlaction . "`project` = " . $project . " ";
+		$sqlaction = $sqlaction . "`c`.`project` = " . $project . " ";
 	}
 	
 	if (!is_null($from)) {
-		$sqlaction = $sqlaction . "`submit` >= " . $from . " ";
+		$sqlaction = $sqlaction . "`c`.`submit` >= " . $from . " ";
 	}
 	
 	if (!is_null($to)) {
-		$sqlaction = $sqlaction . "`submit` <= " . $to . " ";
+		$sqlaction = $sqlaction . "`c`.`submit` <= " . $to . " ";
 	}
 
 	if (!is_null($voted)) {
-		$sqlaction = $sqlaction . "`vote-utopian` = " . $voted . " ";
+		$sqlaction = $sqlaction . "`c`.`vote-utopian` = " . $voted . " ";
 	}
 
 	if (!is_null($reviewed)) {
-		$sqlaction = $sqlaction . "`review` = " . $reviewed . " ";
+		$sqlaction = $sqlaction . "`c`.`review` = " . $reviewed . " ";
 	}
 
 	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `c`.`id` AS `cid`, `c`.`translator` AS `tid`, `c`.`proofreader` AS `pid`, `c`.`link` AS `contrlink`, `c`.`submit` AS `submitdate`, `c`.`review` AS `reviewdate`, `c`.`vote-utopian` AS `vote-utopian`, `p`.`name` AS `projectname`, `p`.`crowdin` AS `crowdinlink`, `p`.`github` AS `githublink`, `u1`.`username` AS `translator`, `u2`.`username` AS `proofreader` FROM `contributions` AS `c` LEFT JOIN `users` AS `u1` on `c`.`translator` = `u1`.`id` LEFT JOIN `users` AS `u2` on `c`.`proofreader` = `u2`.`id` LEFT JOIN `projects` AS `p` ON `c`.`project` = `p`.`id` ".$sqlaction."ORDER BY `c`.`submit` DESC");
-	
+
 	if ($result) {
 		// Initialise an empty variable to store the content
 		$contributionlist = "";
@@ -295,7 +295,7 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 		return $contributionlist;
 	} else {
 		// Error running the query. Return error.
-		echo "unexpectederror";
+		mysqli_error($GLOBALS['sqlcon']);
 	}
 }
 
@@ -615,7 +615,7 @@ function GetMainPageContent() {
 	if ($hasaccess > 0) {
 		return "Welcome, " . $_COOKIE['username'] . ". You are already logged in, and you are registered as a member with access to the app, so feel free to stick around.";
 	} else {
-		return "This app is only intended for use by the <?php echo $teamname; ?> Translation Team. You need to login before you proceed to use anything in this app!<br /><a href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=". $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "/callback.php\"; ?>&scope=login\" class=\"font-weight-bold\">Secure login via SteemConnect</a>";
+		return "This app is only intended for use by the <?php echo $teamname; ?> Translation Team. You need to login before you proceed to use anything in this app!<br /><a href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=https://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "callback.php&scope=login\" class=\"font-weight-bold\">Secure login via SteemConnect</a>";
 	}
 	
 }
