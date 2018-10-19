@@ -6,11 +6,14 @@ After talking with my fellow Greek Language Mod [@ruth-girl](https://www.steemit
 
 This app will be used in conjunction with the Greek Team's [Community Account (@aristotle.team)](https://www.steemit.com/@aristotle.team)
 
+Also, take some time to read the [Project Announcement Post on Steemit](https://steemit.com/utopian-io/@dimitrisp/aristotle-app-an-app-to-supplement-the-utopian-translation-teamwork)
+
 ## Implemented Functionality
 
 - Basic SteemConnect Login/Verification
 - Tasks (add/reply/view/mark as resolved)
-- Projects list with start/finish dates
+- Projects list with start/finish dates and assigning to translators/proofreaders
+- Contribution list with filtering functionality
 - User list
 
 ## Planned initial functionality
@@ -27,7 +30,7 @@ I will be updating this README file as soon as I have something to add (new feat
 
 ## !!!NOTICE/WARNING!!!
 
-This app is not to be used exclusively for the translations communication. Intended as a supplemental way to log anything you might need, as discord chat can be unmanageable.
+This app is not to be used exclusively for the translations communication. It is intended as a supplemental way to log anything you might need, as discord chat can be unmanageable.
 
 Also, to those people who will ask the following (or similar) questions:
 
