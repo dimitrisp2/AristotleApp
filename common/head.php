@@ -45,6 +45,7 @@
                 <a class="nav-item nav-link" href="contributions.php">Contributions</a>
                 <a class="nav-item nav-link" href="tasks.php">Tasks</a>
                 <a class="nav-item nav-link" href="users.php">Users</a>
+				<a class="nav-item nav-link active" href="https://steemit.com/utopian-io/@dimitrisp/aristotle-app-an-app-to-supplement-the-utopian-translation-teamwork" target="_blank">Steemit App Post</a>
 				<div class="btn-group">
 					<?php echo GetMenu(); ?>
 				</div>

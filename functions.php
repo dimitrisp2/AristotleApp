@@ -349,7 +349,7 @@ function GetAllProjects($action) {
 			// Finished/non-finished project field wording & icon customisation
 			if ($row['finished'] == NULL) {
 				$finished = "Not yet";
-				$finishlink = "<a href=\"projects.php?a=mark&w=1&i=".$row['id']."\"><i class=\"tiny material-icons text-success\">spellcheck</i></a>";
+				$finishlink = "<a href=\"projects.php?a=mark&w=1&i=".$row['id']."\" data-toggle=\"tooltip\" data-placement=\"right\" title=\"Mark as Completed\"><i class=\"tiny material-icons text-success\">spellcheck</i></a>";
 			} else {
 				$finished = date("d/m/Y", strtotime($row['finished']));
 				$finishlink = "";
@@ -364,7 +364,7 @@ function GetAllProjects($action) {
 			
 			if ($row['proofreader'] == 0) {
 				// If there is no proofreader, add an assign link and hide the "mark as finished link" that was added earlier
-				$assignlink = "<a href=\"projects.php?a=prepare-assign&i=".$row['id']."\"><i class=\"tiny material-icons\">assignment_ind</i></a>&nbsp;";
+				$assignlink = "<a href=\"projects.php?a=prepare-assign&i=".$row['id']."\" data-toggle=\"tooltip\" data-placement=\"right\" title=\"Assign to Translator\"><i class=\"tiny material-icons\">assignment_ind</i></a>&nbsp;";
 				$finishlink = "";
 			} else {
 				// If there is a proofreader, hide the "assignlink"
@@ -378,7 +378,7 @@ function GetAllProjects($action) {
 			}
 			
 			// Add the project to the list
-			$allprojects .= "<tr><td>".$row['projectname']." ".$linkedrepos."</td><td>".$row['translatorname']."</td><td>".$row['proofreadername']."</td><td>".$started."</td><td>".$finished."</td><td>".$assignlink."<a href=\"projects.php?a=view&i=".$row['id']."\"><i class=\"tiny material-icons\">remove_red_eye</i></a>&nbsp;".$finishlink."</td>";
+			$allprojects .= "<tr><td>".$row['projectname']." ".$linkedrepos."</td><td>".$row['translatorname']."</td><td>".$row['proofreadername']."</td><td>".$started."</td><td>".$finished."</td><td>".$assignlink."<a href=\"projects.php?a=view&i=".$row['id']."\" data-toggle=\"tooltip\" data-placement=\"right\" title=\"View details/contributions\"><i class=\"tiny material-icons\">remove_red_eye</i></a>&nbsp;".$finishlink."</td>";
 		}
 		return $allprojects;
 	} else {
