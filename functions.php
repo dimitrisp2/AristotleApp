@@ -258,9 +258,9 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 			}
 			
 			if ($row['vote-utopian'] == 0) {
-				$voteutopian = "Not Voted";
+				$voteutopian = "<i class=\"fa fa-times text-danger\" aria-hidden=\"false\"></i>";
 			} else {
-				$voteutopian = "Voted";
+				$voteutopian = "<i class=\"fa fa-check text-success\" aria-hidden=\"false\"></i>";
 			}
 			
 			if (!$titled){
@@ -283,11 +283,11 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 			
 			if (!$tabled) {
 				$tabled = TRUE;
-				$contributionlist .= "<table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>Submit</th><th>Review</th><th>Links</th><th>Utopian</th><th></th></tr></thead><tbody>";
+				$contributionlist .= "<table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>Submit</th><th>Review</th><th>Links</th><th></th></tr></thead><tbody>";
 			}
 			
 			// Add the project to the list
-			$contributionlist .= "<tr><td>".$project."</td><td>".$submit."<br />(".$translator.")</td><td>".$review."</td><td><a href=\"".$contributionlink."\" target=\"_blank\">Post</a> | <a href=\"".$crowdin."\" target=\"_blank\">[C]</a></td><td>".$voteutopian."</td><td>(TBC)</td>";
+			$contributionlist .= "<tr><td>".$project."</td><td>".$submit.$voteutopian."<br />(".$translator.")</td><td>".$review."</td><td><a href=\"".$contributionlink."\" target=\"_blank\">Post</a> | <a href=\"".$crowdin."\" target=\"_blank\">[C]</a></td><td>(TBC)</td>";
 		}
 		if ($tabled) {
 			$contributionlist .= "</table>";
