@@ -1,6 +1,7 @@
 <?php
 
 $teamname = "Greek";
+$languagename = "Greek";
 
 //////////////////
 // MySQL Config //
@@ -296,6 +297,78 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 	} else {
 		// Error running the query. Return error.
 		mysqli_error($GLOBALS['sqlcon']);
+	}
+}
+
+function IsSteemLink($url) {
+	$urlcomponents = parse_url($url);
+	//print_r($urlcomponents);
+	if (strpos($urlcomponents['host'], 'steemit.com') !== false) {
+		//echo "is steemit link";
+	} else {
+		return FALSE;
+	}
+	
+	$pathcomponents = explode("/", ltrim($urlcomponents['path'], "/"));
+	//print_r($pathcomponents);
+	// $pathcomponents[0] is the tag
+	// $pathcomponents[1] is the username
+	// $pathcomponents[2] is the post permlink
+	
+	if ($pathcomponents[0] != "utopian-io") {
+		return FALSE;
+	} else {
+		$firsttag = $pathcomponents[0];
+	}
+		
+	
+	if (strncmp($pathcomponents[1], "@", 1) !== 0) {
+		return FALSE;
+	} else {
+		$data['username'] = $pathcomponents[1];
+	}
+	
+	$data['permlink'] = $pathcomponents[2];
+	
+	return $data;
+}
+
+function ParseSteemLink($postdata) {
+	// Add username to the $details array, as it will be returned with the rest of the data.
+	$details['author'] = ltrim($postdata['username'], "@");
+	$url = "https://api.steemjs.com/get_content?author=".$details['author']."&permlink=".$postdata['permlink'];
+
+	$json = file_get_contents($url);
+	//echo $json;
+
+	$postdetails = json_decode($json, TRUE);
+
+	//echo $postdetails['post']['title'];
+	// Valid title formats:
+	// "Project name XX Translation - Part YY (~ZZ words)"
+	// "Project name XX Translation | Part YY | ~ZZ Words
+	// where XX is the language name, YY is the part number and ZZ is the word count.
+	$title = $postdetails['title'];
+	if ((strpos($title, '-') !== false) || (strpos($title, '|') !== false)) {
+		$titlextr = explode($GLOBALS['languagename'], $title, 2);
+		// $titlextr[0] = Project name
+		// $titlextr[1] = Rest of the title without language name
+		$project = rtrim($titlextr[0]);
+		preg_match_all('/\d+/i', $title, $contrnumbers);
+		// $contrnumbers[0] = Part number
+		// $contrnumbers[1] = Word count
+		$partno = $contrnumbers[0][0];
+		$wordcount = $contrnumbers[0][1];
+		//echo "Project: " . $project . ", Part: " . $partno . ", Wordcount: " . $wordcount;
+		$details['project'] = $project;
+		$details['part'] = $partno;
+		$details['words'] = $wordcount;
+
+		$details['permlink'] = $postdetails['permlink'];
+		$details['fulltitle'] = $postdetails['title'];
+		return $details;
+	} else {
+		return FALSE;
 	}
 }
 
