@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Φιλοξενητής: 127.0.0.1
--- Χρόνος δημιουργίας: 18 Οκτ 2018 στις 13:01:00
+-- Χρόνος δημιουργίας: 25 Οκτ 2018 στις 10:34:23
 -- Έκδοση διακομιστή: 10.1.21-MariaDB
 -- Έκδοση PHP: 7.1.2
 
@@ -34,7 +34,14 @@ CREATE TABLE `contributions` (
   `link` tinytext NOT NULL,
   `submit` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `review` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `vote-utopian` int(11) NOT NULL
+  `vote-review` tinyint(4) DEFAULT '0',
+  `partno` tinyint(3) UNSIGNED DEFAULT NULL,
+  `wordcount` smallint(6) DEFAULT NULL,
+  `vote-utopian` int(11) NOT NULL,
+  `postpayout` timestamp NULL DEFAULT NULL,
+  `score` tinyint(3) UNSIGNED DEFAULT NULL,
+  `difficulty` tinyint(4) DEFAULT NULL,
+  `comment` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
