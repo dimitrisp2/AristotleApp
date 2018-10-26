@@ -29,33 +29,51 @@ if ($action == "list") {
 	$pagecontent = GetContributionList($translator, $project, $fromdate, $todate, $voteutopian, $reviewed);
 } else if ($action == "add") {
 	$page = "Add Contribution";
+	
+	// Do a basic check on the provided url, to check if it is eligible for adding to the DB
+	// If it is a basic steemit.com utopian link, IsSteemLink() returns an array
+	// Otherwise, returns false
 	$returndata = IsSteemLink($_POST['steemlink']);
-	if(($_POST['steemlink'] != NULL) && (filter_var($_POST['steemlink'], FILTER_VALIDATE_URL) !== false) && is_array($returndata)) {
-		$parselink = ParseSteemLink($returndata);
-		if (CheckUserAccess($parselink['author']) > 0) {
-			$steemlink = $_POST['steemlink'];
-			if (is_array($parselink)) {
-				$pagecontent = "<i>Please verify if the contribution details are correct and press \"Submit\" to continue</i>";
-				$author = $parselink['author'];
-				$partno = $parselink['part'];
-				$wordcount = $parselink['words'];
-				$projectname = $parselink['project'];
+	
+	// First check, if the link is an actual Steemit link, check if it was already added.
+	if (is_array($returndata)) {
+		$isadded = CheckSteemLinkDB($_POST['steemlink']);
+	}
+
+	if ($isadded == TRUE) {
+		$pagecontent = "The contribution was already in the database!";
+	} else if ($isadded == FALSE) {
+		if(($_POST['steemlink'] != NULL) && (filter_var($_POST['steemlink'], FILTER_VALIDATE_URL) !== false) && is_array($returndata)) {
+			$parselink = ParseSteemLink($returndata);
+			if (CheckUserAccess($parselink['author']) > 0) {
+				$steemlink = $_POST['steemlink'];
+				if (is_array($parselink)) {
+					$pagecontent = "<i>Please verify if the contribution details are correct and press \"Submit\" to continue</i>";
+					$author = $parselink['author'];
+					$partno = $parselink['part'];
+					$wordcount = $parselink['words'];
+					$projectname = $parselink['project'];
+				} else {
+					$pagecontent = "<i>Unable to parse the post. Please try again later or fill the details below and press \"Submit\" to continue</i>";
+					$author = "";
+					$partno = "";
+					$wordcount = "";
+					$projectname = "";
+				}
+				//print_r($parselink);
+				$pagecontent .= "<form action=\"contributions.php?a=processadd\" method=\"post\"><div class=\"form-group row\"><label for=\"author\" class=\"col-4 col-form-label\">Author</label> <div class=\"col-8\"><input id=\"author\" name=\"author\" type=\"text\" aria-describedby=\"authorHelpBlock\" required=\"required\" class=\"form-control here\" value=\"$author\"> <span id=\"authorHelpBlock\" class=\"form-text text-muted\">Steem Username without @</span></div></div><div class=\"form-group row\"><label for=\"partno\" class=\"col-4 col-form-label\">Part Number</label> <div class=\"col-8\"><input id=\"partno\" name=\"partno\" placeholder=\"20\" type=\"text\" required=\"required\" class=\"form-control here\" value=\"$partno\"></div></div><div class=\"form-group row\"><label for=\"wordcount\" class=\"col-4 col-form-label\">Word Count</label> <div class=\"col-8\"><input id=\"wordcount\" name=\"wordcount\" placeholder=\"1251\" type=\"text\" required=\"required\" class=\"form-control here\" value=\"$wordcount\"></div></div><div class=\"form-group row\"><label for=\"projectname\" class=\"col-4 col-form-label\">Project</label> <div class=\"col-8\"><input id=\"projectname\" name=\"projectname\" placeholder=\"ReactOS\" type=\"text\" required=\"required\" class=\"form-control here\" value=\"$projectname\"></div></div> <div class=\"form-group row\"><div class=\"offset-4 col-8\"><button name=\"submit\" type=\"submit\" class=\"btn btn-primary\">Submit</button></div></div><input type=\"hidden\" id=\"steemlink\" name=\"steemlink\" value=\"".$steemlink."\"></form>";
 			} else {
-				$pagecontent = "<i>Unable to parse the post. Please try again later or fill the details below and press \"Submit\" to continue</i>";
-				$author = "";
-				$partno = "";
-				$wordcount = "";
-				$projectname = "";
+				print_r($parselink);
+				$pagecontent = "The contribution you've tried to submit was not made by a member of the ".$teamname." Team. This contribution couldn't be added to the database. If you believe this is an error, please contact an administrator";
 			}
-			//print_r($parselink);
-			$pagecontent .= "<form action=\"contributions.php?a=processadd\" method=\"post\"><div class=\"form-group row\"><label for=\"author\" class=\"col-4 col-form-label\">Author</label> <div class=\"col-8\"><input id=\"author\" name=\"author\" type=\"text\" aria-describedby=\"authorHelpBlock\" required=\"required\" class=\"form-control here\" value=\"$author\"> <span id=\"authorHelpBlock\" class=\"form-text text-muted\">Steem Username without @</span></div></div><div class=\"form-group row\"><label for=\"partno\" class=\"col-4 col-form-label\">Part Number</label> <div class=\"col-8\"><input id=\"partno\" name=\"partno\" placeholder=\"20\" type=\"text\" required=\"required\" class=\"form-control here\" value=\"$partno\"></div></div><div class=\"form-group row\"><label for=\"wordcount\" class=\"col-4 col-form-label\">Word Count</label> <div class=\"col-8\"><input id=\"wordcount\" name=\"wordcount\" placeholder=\"1251\" type=\"text\" required=\"required\" class=\"form-control here\" value=\"$wordcount\"></div></div><div class=\"form-group row\"><label for=\"projectname\" class=\"col-4 col-form-label\">Project</label> <div class=\"col-8\"><input id=\"projectname\" name=\"projectname\" placeholder=\"ReactOS\" type=\"text\" required=\"required\" class=\"form-control here\" value=\"$projectname\"></div></div> <div class=\"form-group row\"><div class=\"offset-4 col-8\"><button name=\"submit\" type=\"submit\" class=\"btn btn-primary\">Submit</button></div></div><input type=\"hidden\" id=\"steemlink\" name=\"steemlink\" value=\"".$steemlink."\"></form>";
 		} else {
-			print_r($parselink);
-			$pagecontent = "The contribution you've tried to submit was not made by a member of the ".$teamname." Team. This contribution couldn't be added to the database. If you believe this is an error, please contact an administrator";
+			$pagecontent = "The input is not a valid link, or is empty. Please try again by specifying a Steemit contribution link.";
 		}
 	} else {
-		$pagecontent = "The input is not a valid link, or is empty. Please try again by specifying a Steemit contribution link.";
+		//echo "Couldn't check";
+		$pagecontent = "Unable to check. Please try again later.";
 	}
+
 } else if ($action == "processadd") {
 	print_r($_POST);
 } else {

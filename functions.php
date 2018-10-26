@@ -312,6 +312,22 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 	}
 }
 
+// Check if the link is already in the DB
+function CheckSteemLinkDB($url) {
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id` FROM `contributions` WHERE `link` = \"".$url."\"");
+	if ($result) {
+		if (mysqli_num_rows($result) > 0) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+	} else {
+		return "error";
+	}
+}
+
+// Check if it is a valid Steemit/Utopian-io contribution link
+// Should change it to check the actual tags, instead of the tag in the url.
 function IsSteemLink($url) {
 	$urlcomponents = parse_url($url);
 	//print_r($urlcomponents);
