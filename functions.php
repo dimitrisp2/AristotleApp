@@ -208,7 +208,7 @@ function GetUserID($username) {
 ///////////////////
 
 function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = NULL, $voted = NULL, $reviewed = NULL, $title = NULL) {
-	// prepare SQL action if either or both $user and $project are set.
+	// prepare SQL action if any/all of the arguments are set.
 	if ((!is_null($user)) || (!is_null($project)) || (!is_null($from)) || (!is_null($to)) || (!is_null($voted)) || (!is_null($reviewed))) {
 		$sqlaction = "WHERE ";
 	} else {
@@ -237,32 +237,44 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 	if (!is_null($reviewed)) {
 		$sqlaction = $sqlaction . "`c`.`review` = " . $reviewed . " ";
 	}
-
+	
+	// Fetch all Contributions that fit the seach criteria
+	// By default there are no search criteria, should return a full list of all contributions
 	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `c`.`id` AS `cid`, `c`.`translator` AS `tid`, `c`.`proofreader` AS `pid`, `c`.`link` AS `contrlink`, `c`.`submit` AS `submitdate`, `c`.`review` AS `reviewdate`, `c`.`vote-utopian` AS `vote-utopian`, `p`.`name` AS `projectname`, `p`.`crowdin` AS `crowdinlink`, `p`.`github` AS `githublink`, `u1`.`username` AS `translator`, `u2`.`username` AS `proofreader` FROM `contributions` AS `c` LEFT JOIN `users` AS `u1` on `c`.`translator` = `u1`.`id` LEFT JOIN `users` AS `u2` on `c`.`proofreader` = `u2`.`id` LEFT JOIN `projects` AS `p` ON `c`.`project` = `p`.`id` ".$sqlaction."ORDER BY `c`.`submit` DESC");
 
 	if ($result) {
 		// Initialise an empty variable to store the content
 		$contributionlist = "";
-		// Get all projects
+		
+		// Used to check if the page subtitle was added, inside the loop
 		$titled = FALSE;
+		
+		// Used to check if the <table> has started, inside the loop
 		$tabled = FALSE;
+		// Get all projects
 		while ($row = mysqli_fetch_assoc($result)) {
 			$translator = $row['translator'];
+
 			$submit = date("d/m/Y", strtotime($row['submitdate']));
 			$project = $row['projectname'];
 			$contributionlink = $row['contrlink'];
 			$crowdin = $row['crowdinlink'];
+			
+			// Show if/when a review has been added
 			if ($row['reviewdate'] == NULL) {
 				$review = "Not yet";
 			} else {
 				$review = date("d/m/Y", strtotime($row['reviewdate'])) . "<br />(".$row['proofreader'].")";
 			}
 			
+			// Show if a utopian vote has been added to the contribution
 			if ($row['vote-utopian'] == 0) {
 				$voteutopian = "<i class=\"fa fa-times text-danger\" aria-hidden=\"false\"></i>";
 			} else {
 				$voteutopian = "<i class=\"fa fa-check text-success\" aria-hidden=\"false\"></i>";
 			}
+			
+			// Will be expanded to add more details, like payout amount, part no and wordcount (where available).
 			
 			if (!$titled){
 				$titled = TRUE;
@@ -333,6 +345,8 @@ function IsSteemLink($url) {
 	return $data;
 }
 
+// Parse the blockchain data for the provided post.
+// When automation is implemented, this should be asynchronous
 function ParseSteemLink($postdata) {
 	// Add username to the $details array, as it will be returned with the rest of the data.
 	$details['author'] = ltrim($postdata['username'], "@");
