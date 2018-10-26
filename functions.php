@@ -203,9 +203,49 @@ function GetUserID($username) {
 	}
 }
 
+// Get the ID of the project set in $project
+function GetProjectID($project) {
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id` FROM `projects` WHERE `name` = '" . $project . "'");
+	if ($result) {
+		$projectfound = mysqli_num_rows($result);
+		if ($projectfound == 1) {			
+			$row = mysqli_fetch_assoc($result);
+			return $row['id'];
+		} else {
+			return FALSE;
+		}
+	} else {
+		return "error";
+	}
+}
+
+
 ///////////////////
 // CONTRIBUTIONS //
 ///////////////////
+
+function AddContribution($project, $translator, $link, $created, $partno = NULL, $wordcount = NULL) {
+	if (is_null($partno)) {
+		$partno = 0;
+	}
+	
+	if (is_null($wordcount)) {
+		$wordcount = 0;
+	}
+	
+	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
+	if (mysqli_stmt_prepare($stmt, 'INSERT INTO `contributions` (`project`, `translator`, `link`, `submit`, `partno`, `wordcount`) VALUES(?, ?, ?, ?, ?, ?)')) {
+		mysqli_stmt_bind_param($stmt, "iissii", $project, $translator, $link, $created, $partno, $wordcount);
+		$rvl = mysqli_stmt_execute($stmt);
+		if ($rvl) {
+			return "The contribution has been added successfully to the database";
+		} else {
+			return "Unable to add the contribution to the database. Please try again";
+		}
+	} else {
+		return "error";
+	}
+}
 
 function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = NULL, $voted = NULL, $reviewed = NULL, $title = NULL) {
 	// prepare SQL action if any/all of the arguments are set.
@@ -367,7 +407,7 @@ function ParseSteemLink($postdata) {
 	// Add username to the $details array, as it will be returned with the rest of the data.
 	$details['author'] = ltrim($postdata['username'], "@");
 	$url = "https://api.steemjs.com/get_content?author=".$details['author']."&permlink=".$postdata['permlink'];
-
+	//echo $url;
 	$json = file_get_contents($url);
 	//echo $json;
 
@@ -396,6 +436,7 @@ function ParseSteemLink($postdata) {
 
 		$details['permlink'] = $postdetails['permlink'];
 		$details['fulltitle'] = $postdetails['title'];
+		$details['time'] = $postdetails['created'];
 		return $details;
 	} else {
 		return FALSE;
