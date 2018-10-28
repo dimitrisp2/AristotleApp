@@ -68,6 +68,7 @@ if ((isset($_COOKIE['username'])) && ($_COOKIE['username'] != $user) && (basenam
 	header("Location: error.php?i=-3");
 	die();
 } else {
+	$hasaccess = -1;
 	// All is cool.
 }
 
@@ -76,8 +77,8 @@ function CheckUserAccess($username) {
 	$username = mysqli_real_escape_string($GLOBALS['sqlcon'], $username);
 	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id`, `role` FROM `users` WHERE `username` = '".$username."';");
 	if ($result) {
-		$proofreaders = mysqli_num_rows($result);
-		if ($proofreaders == 1) {
+		$userdet = mysqli_num_rows($result);
+		if ($userdet == 1) {
 			$row = mysqli_fetch_assoc($result);
 			return $row['role'];
 		} else {
@@ -770,7 +771,7 @@ function GetMainPageContent() {
 		return "Welcome, " . $_COOKIE['username'] . ". You are already logged in, and you are registered as a member with access to the app, so feel free to stick around.";
 	} else {
 		$hasaccess = 0;
-		return "This app is only intended for use by the <?php echo $teamname; ?> Translation Team. You need to login before you proceed to use anything in this app!<br /><a href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=https://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "callback.php&scope=login\" class=\"font-weight-bold\">Secure login via SteemConnect</a>";
+		return "This app is only intended for use by the ".$GLOBALS['teamname']." Translation Team. You need to login before you proceed to use anything in this app!<br /><a href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=https://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "callback.php&scope=login\" class=\"font-weight-bold\">Secure login via SteemConnect</a>";
 	}
 }
 
