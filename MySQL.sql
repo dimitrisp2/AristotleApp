@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Φιλοξενητής: 127.0.0.1
--- Χρόνος δημιουργίας: 25 Οκτ 2018 στις 10:34:23
+-- Χρόνος δημιουργίας: 28 Οκτ 2018 στις 12:39:28
 -- Έκδοση διακομιστή: 10.1.21-MariaDB
 -- Έκδοση PHP: 7.1.2
 
@@ -42,7 +42,7 @@ CREATE TABLE `contributions` (
   `score` tinyint(3) UNSIGNED DEFAULT NULL,
   `difficulty` tinyint(4) DEFAULT NULL,
   `comment` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 -- --------------------------------------------------------
 
@@ -108,6 +108,19 @@ CREATE TABLE `users` (
   `expiresin` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
+
+--
+-- Δομή πίνακα για τον πίνακα `weeklyreports`
+--
+
+CREATE TABLE `weeklyreports` (
+  `id` int(11) NOT NULL,
+  `weekend` date NOT NULL,
+  `user` int(11) NOT NULL,
+  `overview` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+
 --
 -- Ευρετήρια για άχρηστους πίνακες
 --
@@ -143,6 +156,12 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Ευρετήρια για πίνακα `weeklyreports`
+--
+ALTER TABLE `weeklyreports`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT για άχρηστους πίνακες
 --
 
@@ -170,6 +189,11 @@ ALTER TABLE `tasks`
 -- AUTO_INCREMENT για πίνακα `users`
 --
 ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT για πίνακα `weeklyreports`
+--
+ALTER TABLE `weeklyreports`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
