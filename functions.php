@@ -214,6 +214,22 @@ function GetUserID($username) {
 	}
 }
 
+// Get the User of the id set in $userid
+function GetUsername($userid) {
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `username` FROM `users` WHERE `id` = " . $userid);
+	if ($result) {
+		$userfound = mysqli_num_rows($result);
+		if ($userfound == 1) {			
+			$row = mysqli_fetch_assoc($result);
+			return $row['username'];
+		} else {
+			return "notfound";
+		}
+	} else {
+		return "error";
+	}
+}
+
 // Get the ID of the project set in $project
 function GetProjectID($project) {
 	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id` FROM `projects` WHERE `name` = '" . $project . "'");
@@ -258,7 +274,7 @@ function AddContribution($project, $translator, $link, $created, $partno = NULL,
 	}
 }
 
-function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = NULL, $voted = NULL, $reviewed = NULL, $proofreader = NULL, $title = NULL) {
+function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = NULL, $voted = NULL, $reviewed = NULL, $proofreader = NULL, $title = NULL, $weeklyreport = NULL) {
 	// $limit will be used if no other arguments are set.
 	$limit = "";
 	// prepare SQL action if any/all of the arguments are set.
@@ -269,34 +285,64 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 		$sqlaction = "";
 		$limit = " LIMIT " . $GLOBALS['contlimit'];
 	}
+	
+	// Hack to show "AND" between two "WHERE" actions
+	$showand = FALSE;
+	
 	if (!is_null($user)) {
 		$sqlaction = $sqlaction . "`c`.`translator` = " . $user . " ";
+		$showand = TRUE;
 	} 
 	
 	if (!is_null($project)) {
+		if ($showand == TRUE) {
+			$sqlaction .= "AND ";
+		}
+		$showand = TRUE;
 		$sqlaction = $sqlaction . "`c`.`project` = " . $project . " ";
 	}
 	
 	if (!is_null($from)) {
-		$sqlaction = $sqlaction . "`c`.`submit` >= " . $from . " ";
+		if ($showand == TRUE) {
+			
+		}
+		$showand = TRUE;
+		$sqlaction = $sqlaction . "`c`.`submit` >= '" . $from . "' ";
 	}
 	
 	if (!is_null($to)) {
-		$sqlaction = $sqlaction . "`c`.`submit` <= " . $to . " ";
+		if ($showand == TRUE) {
+			$sqlaction .= "AND ";
+		}
+		$showand = TRUE;
+		$sqlaction = $sqlaction . "`c`.`submit` <= '" . $to . "' ";
 	}
 
 	if (!is_null($voted)) {
+		if ($showand == TRUE) {
+			$sqlaction .= "AND ";
+		}
+		$showand = TRUE;
 		$sqlaction = $sqlaction . "`c`.`vote-utopian` = " . $voted . " ";
 	}
 
 	if (!is_null($reviewed)) {
+		if ($showand == TRUE) {
+			$sqlaction .= "AND ";
+		}
 		$sqlaction = $sqlaction . "`c`.`review` = " . $reviewed . " ";
+	}
+	
+	if ($weeklyreport == TRUE ) {
+		$weeklyreportaction = ", `c`.`score` AS `contrscore`, `c`.`comment` AS `contrcomment`";
+	} else {
+		$weeklyreportaction = "";
 	}
 	
 	// Fetch all Contributions that fit the seach criteria
 	// By default there are no search criteria, should return a full list of all contributions
-	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `c`.`id` AS `cid`, `c`.`translator` AS `tid`, `c`.`proofreader` AS `pid`, `c`.`link` AS `contrlink`, `c`.`submit` AS `submitdate`, `c`.`review` AS `reviewdate`, `c`.`vote-utopian` AS `vote-utopian`, `p`.`name` AS `projectname`, `p`.`crowdin` AS `crowdinlink`, `p`.`github` AS `githublink`, `u1`.`username` AS `translator`, `u2`.`username` AS `proofreader` FROM `contributions` AS `c` LEFT JOIN `users` AS `u1` on `c`.`translator` = `u1`.`id` LEFT JOIN `users` AS `u2` on `c`.`proofreader` = `u2`.`id` LEFT JOIN `projects` AS `p` ON `c`.`project` = `p`.`id` ".$sqlaction."ORDER BY `c`.`submit` DESC" . $limit);
-
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `c`.`id` AS `cid`, `c`.`translator` AS `tid`, `c`.`proofreader` AS `pid`, `c`.`link` AS `contrlink`, `c`.`submit` AS `submitdate`, `c`.`review` AS `reviewdate`, `c`.`vote-utopian` AS `vote-utopian`, `p`.`name` AS `projectname`, `p`.`crowdin` AS `crowdinlink`, `p`.`github` AS `githublink`, `c`.`wordcount` AS `wordcount`, `c`.`partno` AS `partno`, `u1`.`username` AS `translator`, `u2`.`username` AS `proofreader`". $weeklyreportaction . " FROM `contributions` AS `c` LEFT JOIN `users` AS `u1` on `c`.`translator` = `u1`.`id` LEFT JOIN `users` AS `u2` on `c`.`proofreader` = `u2`.`id` LEFT JOIN `projects` AS `p` ON `c`.`project` = `p`.`id` ".$sqlaction."ORDER BY `c`.`submit` DESC" . $limit);
+	
 	if ($result) {
 		// Initialise an empty variable to store the content
 		$contributionlist = "";
@@ -314,6 +360,13 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 			$project = $row['projectname'];
 			$contributionlink = $row['contrlink'];
 			$crowdin = $row['crowdinlink'];
+			$partno = $row['partno'];
+			$wordcount = $row['wordcount'];
+			// If it's a weekly report, assign score and contribution comment to the variable
+			if ($weeklyreport == TRUE ) {
+				$score = $row['contrscore'];
+				$comment = $row['contrcomment'];
+			}
 			
 			// Show if/when a review has been added
 			if ($row['reviewdate'] == NULL) {
@@ -351,11 +404,19 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 			
 			if (!$tabled) {
 				$tabled = TRUE;
-				$contributionlist .= "<table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>Submit</th><th>Review</th><th>Links</th><th></th></tr></thead><tbody>";
+				if ($weeklyreport == TRUE) {
+					$contributionlist .= "<table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>Submit</th><th>Review</th><th>Links</th><th>Score</th><th>Wordcount</th><th>Comment</th></tr></thead><tbody>";
+				} else {
+					$contributionlist .= "<table class=\"table table-striped table-hover\"><thead><tr><th>Project</th><th>Submit</th><th>Review</th><th>Links</th><th>Wordcount<th></th></tr></thead><tbody>";
+				}
 			}
 			
 			// Add the project to the list
-			$contributionlist .= "<tr><td>".$project."</td><td>".$submit.$voteutopian."<br />(".$translator.")</td><td>".$review."</td><td><a href=\"".$contributionlink."\" target=\"_blank\">Post</a> | <a href=\"".$crowdin."\" target=\"_blank\">[C]</a></td><td>(TBC)</td>";
+			if ($weeklyreport == TRUE) {
+				$contributionlist = $contributionlist .= "<tr><td>".$project." (p.".$partno.")</td><td>".$submit.$voteutopian."<br />(".$translator.")</td><td>".$review."</td><td><a href=\"".$contributionlink."\" target=\"_blank\">Post</a> | <a href=\"".$crowdin."\" target=\"_blank\">[C]</a></td><td>".$score."</td><td>".$wordcount."</td><td>".$comment."</td><td>(TBC)</td>";
+			} else {
+				$contributionlist .= "<tr><td>".$project." (p.".$partno.")</td><td>".$submit.$voteutopian."<br />(".$translator.")</td><td>".$review."</td><td><a href=\"".$contributionlink."\" target=\"_blank\">Post</a> | <a href=\"".$crowdin."\" target=\"_blank\">[C]</a></td><td>".$wordcount."</td><td>(TBC)</td>";
+			}
 		}
 		if ($tabled) {
 			$contributionlist .= "</table>";
@@ -781,6 +842,8 @@ function GetReportList($user = NULL) {
 		$limit = " LIMIT 15";
 	}
 	
+	// Fetch all Contributions that fit the seach criteria
+	// By default there are no search criteria, should return a full list of all contributions
 	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `w`.`id` AS `rid`, `w`.`weekend` AS `enddate`, `w`.`overview` AS `overview`, `u`.`username` AS `username` FROM `weeklyreports` AS `w` LEFT JOIN `users` AS `u` ON `w`.`user` = `u`.`id` ".$sqlaction."ORDER BY `weekend` DESC" . $limit);
 	if ($result) {
 		// Initialise an empty variable to store the content
@@ -796,7 +859,29 @@ function GetReportList($user = NULL) {
 	}
 }
 
+function GetSingleReport($reportid) {
+	// Get the proofreader's ID, the report date and the overview comment from the $reportid.
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `weekend`, `overview`, `user` FROM `weeklyreports` WHERE `id` = ". $reportid);
+	$row = mysqli_fetch_assoc($result);
+	
+	$weekend = $row['weekend'];
+	$proofreader = $row['user'];
+	$overview = $row['overview'];
+	
+	// We want the reviews of the past 7 dates, so we need to get the actual date of $weekend - 6 days.
+	$weekstart = date('Y-m-d', strtotime('-6 days', strtotime($weekend)));
 
+	// Now we want to get all the contributions from that week, in a table. 
+	$contributions = GetContributionList(NULL, NULL, $weekstart, $weekend, NULL, NULL, $proofreader, NULL, true);
+	
+	$username = GetUsername($proofreader);
+	if ($username != "error" && $username != "notfound") {
+		$GLOBALS['page'] = $username . " Report " . $weekstart . " to " . $weekend;
+	}
+	
+	$returncontent = "<br /><b>Overview</b>: " . $overview . "<br /><br />" . $contributions;
+	return $returncontent;
+}
 
 function GetMainPageContent() {
 	if (isset($_COOKIE['username'])) {

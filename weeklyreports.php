@@ -1,5 +1,4 @@
 <?php
-$page = "Weekly Reports";
 include("functions.php");
 
 if (isset($_GET['a'])) {
@@ -9,10 +8,17 @@ if (isset($_GET['a'])) {
 }
 
 if ($action == NULL || $action == "list") {
+	$page = "Weekly Reports";
 	$reviewlist = GetReportList();
 	$pagecontent = "<table class=\"table table-striped table-hover\"><thead><tr><th>Week</th><th>Moderator</th><th></th></tr></thead><tbody>$reviewlist</tbody></table>";
 } else if ($action = "view") {
-	
+	$page = "";
+	$rid = intval($_GET['id']);
+	if (is_int($rid)) {
+		$pagecontent = GetSingleReport($_GET['id']);
+	} else {
+		$pagecontent = "Invalid ID. Please try again";
+	}
 } else if ($action == "add") {
 	
 } else if ($action = "processadd") {
