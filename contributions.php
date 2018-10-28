@@ -26,7 +26,7 @@ if ($action == "list") {
 	if ((isset($_POST['reviewed'])) && ($_POST['reviewed'] != "na")) { $reviewed = $_POST['reviewed']; }
 	$page = "Contribution Search";
 	
-	$pagecontent = GetContributionList($translator, $project, $fromdate, $todate, $voteutopian, $reviewed);
+	$pagecontent = GetContributionList($translator, $project, $fromdate, $todate, $voteutopian, NULL, $reviewed);
 } else if ($action == "add") {
 	$page = "Add Contribution";
 	

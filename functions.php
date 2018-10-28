@@ -258,7 +258,7 @@ function AddContribution($project, $translator, $link, $created, $partno = NULL,
 	}
 }
 
-function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = NULL, $voted = NULL, $reviewed = NULL, $title = NULL) {
+function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = NULL, $voted = NULL, $reviewed = NULL, $proofreader = NULL, $title = NULL) {
 	// $limit will be used if no other arguments are set.
 	$limit = "";
 	// prepare SQL action if any/all of the arguments are set.
