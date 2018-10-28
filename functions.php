@@ -1,8 +1,15 @@
 <?php
 
+// Your team name, will be shown in various places in-app.
 $teamname = "Greek";
+
+// Your language name as added in posts, will be used to parse the titles of Contributions in order to fetch the project name, part number and wordcount.
+// For this to work correctly, titles must be in this format:
+// Projectname $languagename Translation - Part XX (XXXX words)
 $languagename = "Greek";
 
+// Choose a contribution limit when no filters have been added.
+// For teams with less than 5 translators, 30 contributions will contributions up to 2 weeks in the past by default.
 $contlimit = 30;
 
 
