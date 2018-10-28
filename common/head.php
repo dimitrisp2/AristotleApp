@@ -41,10 +41,23 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
                 <a class="nav-item nav-link active" href="index.php">Home</a>
-                <a class="nav-item nav-link" href="projects.php">Projects</a>
-                <a class="nav-item nav-link" href="contributions.php">Contributions</a>
-                <a class="nav-item nav-link" href="tasks.php">Tasks</a>
-                <a class="nav-item nav-link" href="users.php">Users</a>
+				<?php
+				// Check if the user is a CM, and don't give access to project/contributions/tasks
+				if ($hasaccess != 4) {
+					?>
+					<a class="nav-item nav-link" href="projects.php">Projects</a>
+					<a class="nav-item nav-link" href="contributions.php">Contributions</a>
+					<a class="nav-item nav-link" href="tasks.php">Tasks</a>
+					<?php 
+				}
+				// Check if the user is a moderator or a CM, and give access to "Users" and "Weekly Reports"
+				if ($hasaccess == 2 || $hasaccess == 3 || $hasaccess == 4) {
+					?>
+					<a class="nav-item nav-link" href="users.php">Users</a>
+					<a class="nav-item nav-link" href="weeklyreports.php">W.Reports</a>
+					<?php
+				}
+				?>
 				<a class="nav-item nav-link active" href="https://steemit.com/utopian-io/@dimitrisp/aristotle-app-an-app-to-supplement-the-utopian-translation-teamwork" target="_blank">Steemit App Post</a>
 				<div class="btn-group">
 					<?php echo GetMenu(); ?>
