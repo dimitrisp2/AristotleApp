@@ -3,6 +3,9 @@
 $teamname = "Greek";
 $languagename = "Greek";
 
+$contlimit = 30;
+
+
 //////////////////
 // MySQL Config //
 //////////////////
@@ -248,11 +251,15 @@ function AddContribution($project, $translator, $link, $created, $partno = NULL,
 }
 
 function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = NULL, $voted = NULL, $reviewed = NULL, $title = NULL) {
+	// $limit will be used if no other arguments are set.
+	$limit = "";
 	// prepare SQL action if any/all of the arguments are set.
 	if ((!is_null($user)) || (!is_null($project)) || (!is_null($from)) || (!is_null($to)) || (!is_null($voted)) || (!is_null($reviewed))) {
 		$sqlaction = "WHERE ";
 	} else {
+		// No arguments have been set, we need to set a limit of 30 contributions (in order to not overload the system)
 		$sqlaction = "";
+		$limit = " LIMIT " . $GLOBALS['contlimit'];
 	}
 	if (!is_null($user)) {
 		$sqlaction = $sqlaction . "`c`.`translator` = " . $user . " ";
@@ -280,7 +287,7 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 	
 	// Fetch all Contributions that fit the seach criteria
 	// By default there are no search criteria, should return a full list of all contributions
-	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `c`.`id` AS `cid`, `c`.`translator` AS `tid`, `c`.`proofreader` AS `pid`, `c`.`link` AS `contrlink`, `c`.`submit` AS `submitdate`, `c`.`review` AS `reviewdate`, `c`.`vote-utopian` AS `vote-utopian`, `p`.`name` AS `projectname`, `p`.`crowdin` AS `crowdinlink`, `p`.`github` AS `githublink`, `u1`.`username` AS `translator`, `u2`.`username` AS `proofreader` FROM `contributions` AS `c` LEFT JOIN `users` AS `u1` on `c`.`translator` = `u1`.`id` LEFT JOIN `users` AS `u2` on `c`.`proofreader` = `u2`.`id` LEFT JOIN `projects` AS `p` ON `c`.`project` = `p`.`id` ".$sqlaction."ORDER BY `c`.`submit` DESC");
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `c`.`id` AS `cid`, `c`.`translator` AS `tid`, `c`.`proofreader` AS `pid`, `c`.`link` AS `contrlink`, `c`.`submit` AS `submitdate`, `c`.`review` AS `reviewdate`, `c`.`vote-utopian` AS `vote-utopian`, `p`.`name` AS `projectname`, `p`.`crowdin` AS `crowdinlink`, `p`.`github` AS `githublink`, `u1`.`username` AS `translator`, `u2`.`username` AS `proofreader` FROM `contributions` AS `c` LEFT JOIN `users` AS `u1` on `c`.`translator` = `u1`.`id` LEFT JOIN `users` AS `u2` on `c`.`proofreader` = `u2`.`id` LEFT JOIN `projects` AS `p` ON `c`.`project` = `p`.`id` ".$sqlaction."ORDER BY `c`.`submit` DESC" . $limit);
 
 	if ($result) {
 		// Initialise an empty variable to store the content
