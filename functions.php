@@ -765,6 +765,39 @@ function GetAllUsers() {
 	}
 }
 
+////////////////////
+// Weekly Reports //
+////////////////////
+
+function GetReportList($user = NULL) {
+	// prepare SQL action if any/all of the arguments are set.
+	if (!is_null($user)) {
+		// If $user was set, show only their weekly reports
+		$sqlaction = "WHERE `user` = '" .$user. "' ";
+		$limit = "";
+	} else { 
+		// Otherwise, show the last 15 weekly reports
+		$sqlaction = "";
+		$limit = " LIMIT 15";
+	}
+	
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `w`.`id` AS `rid`, `w`.`weekend` AS `enddate`, `w`.`overview` AS `overview`, `u`.`username` AS `username` FROM `weeklyreports` AS `w` LEFT JOIN `users` AS `u` ON `w`.`user` = `u`.`id` ".$sqlaction."ORDER BY `weekend` DESC" . $limit);
+	if ($result) {
+		// Initialise an empty variable to store the content
+		$reviewlist = "";
+
+		while ($row = mysqli_fetch_assoc($result)) {
+			$reviewlist .= "<tr><td>".$row['enddate']."</td><td>".$row['username']."</td><td><a href=\"weeklyreports.php?a=view&id=".$row['rid']."\"><i class=\"tiny material-icons\">remove_red_eye</i></a></td></tr>";
+		}
+		return $reviewlist;
+	} else {
+		// Error running the query. Return error.
+		mysqli_error($GLOBALS['sqlcon']);
+	}
+}
+
+
+
 function GetMainPageContent() {
 	if (isset($_COOKIE['username'])) {
 		$hasaccess = CheckUserAccess($_COOKIE['username']);
