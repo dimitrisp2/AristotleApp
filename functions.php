@@ -49,6 +49,14 @@ const FOR_PROOFREADER = 2;
 const FOR_STAFF_AND_LM = 4;
 const FOR_ALL = 6;
 
+// Error codes
+const ERROR_GENERIC = 1;
+const ERROR_KICKED_OUT = 0;
+const ERROR_NOT_MEMBER = -1;
+const ERROR_MYSQL = -2;
+const ERROR_LOGIN = -3;
+const ERROR_PERMISSIONS = -4;
+
 //////////////////////////
 // GENERIC DB FUNCTIONS //
 //////////////////////////
