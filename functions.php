@@ -76,7 +76,7 @@ if ((isset($_COOKIE['username'])) && ($_COOKIE['username'] != $user) && (basenam
 		header("Location: error.php?i=".$hasaccess);
 		die();
 	}
-} else if ((!isset($_COOKIE['username'])) && ((basename($_SERVER['PHP_SELF']) != "index.php") && (basename($_SERVER['PHP_SELF']) != "callback.php"))) {
+} else if ((!isset($_COOKIE['username'])) && ((basename($_SERVER['PHP_SELF']) != "index.php") && (basename($_SERVER['PHP_SELF']) != "callback.php") && (basename($_SERVER['PHP_SELF']) != "error.php"))) {
 	header("Location: error.php?i=-3");
 	die();
 } else {

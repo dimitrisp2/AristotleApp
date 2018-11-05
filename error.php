@@ -1,6 +1,6 @@
 <?php
 $page = "Error";
-//include("functions.php");
+include("functions.php");
 include("common/head.php");
 if (isset($_GET['i'])) {
 	$i = $_GET['i'];
