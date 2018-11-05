@@ -33,6 +33,8 @@ $sqldb = "translator";
 // Constants //
 ///////////////
 
+
+// User access levels
 const NO_SQL_CONNECTION = -2;
 const DENY_ACCESS = -1;
 const NO_ACCESS = 0;
@@ -40,6 +42,12 @@ const IS_TRANSLATOR = 1;
 const IS_PROOFREADER = 2;
 const IS_BOTH = 3;
 const IS_STAFF = 4;
+
+// Page access levels
+const FOR_TRANSLATORS = 1;
+const FOR_PROOFREADER = 2;
+const FOR_STAFF_AND_LM = 4;
+const FOR_ALL = 6;
 
 //////////////////////////
 // GENERIC DB FUNCTIONS //
@@ -100,6 +108,39 @@ function CheckUserAccess($username) {
 		return NO_SQL_CONNECTION;
 		echo mysqli_error($GLOBALS['sqlconnect']);
 	}
+}
+
+// Used to check if the user has access to the current page.
+// Should be changed to something better.
+
+function CheckPageAccess() {
+	//echo $GLOBALS['currentaccesslevel'];
+	$acl = $GLOBALS['currentacl'];
+	$hasaccess = $GLOBALS['hasaccess'];
+
+	$showerror = FALSE;
+	
+	// Basically, the following IF will not allow:
+	// A translator to access pages marked with a level of FOR_PROOFREADER or bigger
+	// A staff to access pages marked with a level FOR_PROOFREADER or lower
+	// A person with NO_ACCESS, to access any page with ACL
+	// Perhaps, this could be simplified in some way
+	
+	if (($acl != FOR_TRANSLATORS && $acl != FOR_ALL) && $hasaccess == IS_TRANSLATOR) {
+		$showerror = TRUE;
+	} else if (($acl != FOR_STAFF_AND_LM && $acl != FOR_ALL) && $hasaccess == IS_STAFF) {
+		$showerror = TRUE;
+	} else if ($hasaccess == NO_ACCESS) {
+		$showerror = TRUE;
+	}
+
+	
+	if ($showerror) {
+		echo "You have no access";
+		header("Location: error.php?i=-4");
+		die();
+	}
+	
 }
 
 function ConvertArray2CSV($arrayinput, $seperator) {

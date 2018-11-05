@@ -2,8 +2,12 @@
 $page = "Users";
 include("functions.php");
 
-	$userlist = GetAllUsers();
-	$pagecontent = "<table class=\"table table-striped table-hover\"><thead><tr><th>User</th><th>Member Role</th><th>Hired</th><th>Dismissed</th><th></th></tr></thead><tbody>$userlist</tbody></table>";
+// Set Current page access level, and check if user has access
+$currentacl = FOR_STAFF_AND_LM;
+CheckPageAccess();
+
+$userlist = GetAllUsers();
+$pagecontent = "<table class=\"table table-striped table-hover\"><thead><tr><th>User</th><th>Member Role</th><th>Hired</th><th>Dismissed</th><th></th></tr></thead><tbody>$userlist</tbody></table>";
 include("common/head.php");
 ?>
 

@@ -15,6 +15,8 @@ if ($i == 0) {
 	$pagecontent = "An SQL error occured. You've been logged out, so try again. If this error persists, please contact @dimitrisp on the DaVinci discord.";
 } else if ($i == -3) {
 	$pagecontent = "You are not logged in. Please <a href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=http://localhost/tasklist/callback.php&scope=login\">click here to login via SteemConnect</a>";
+} else if ($i == -4) {
+	$pagecontent = "You do not have permissions to the page you tried to access";
 } else {
 	$pagecontent = "An unexpected error occured. Please try again later";
 }

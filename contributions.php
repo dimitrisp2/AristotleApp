@@ -1,6 +1,11 @@
 <?php
 $page = "Contribution Posts";
 include("functions.php");
+
+// Set Current page access level, and check if user has access
+$currentacl = FOR_ALL;
+CheckPageAccess();
+
 if (isset($_GET['a'])) {
 	$action = $_GET['a'];
 } else {
