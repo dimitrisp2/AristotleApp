@@ -43,7 +43,7 @@
                 <a class="nav-item nav-link active" href="index.php">Home</a>
 				<?php
 				// Check if the user is a CM, and don't give access to project/contributions/tasks
-				if ($hasaccess != 4 && $hasaccess >= 1) {
+				if ($hasaccess != IS_STAFF && $hasaccess >= IS_TRANSLATOR) {
 					?>
 					<a class="nav-item nav-link" href="projects.php">Projects</a>
 					<a class="nav-item nav-link" href="contributions.php">Contributions</a>
@@ -51,7 +51,7 @@
 					<?php 
 				}
 				// Check if the user is a moderator or a CM, and give access to "Users" and "Weekly Reports"
-				if ($hasaccess == 2 || $hasaccess == 3 || $hasaccess == 4) {
+				if ($hasaccess == IS_PROOFREADER || $hasaccess == IS_BOTH || $hasaccess == IS_STAFF) {
 					?>
 					<a class="nav-item nav-link" href="users.php">Users</a>
 					<a class="nav-item nav-link" href="weeklyreports.php">W.Reports</a>

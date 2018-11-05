@@ -29,6 +29,18 @@ $sqldb = "translator";
 // Below this line, this file holds all the crucial code of the app.
 // Please do not edit anything if you don't know what you are doing
 
+///////////////
+// Constants //
+///////////////
+
+const NO_SQL_CONNECTION = -2;
+const DENY_ACCESS = -1;
+const NO_ACCESS = 0;
+const IS_TRANSLATOR = 1;
+const IS_PROOFREADER = 2;
+const IS_BOTH = 3;
+const IS_STAFF = 4;
+
 //////////////////////////
 // GENERIC DB FUNCTIONS //
 //////////////////////////
@@ -56,7 +68,7 @@ if ((isset($_COOKIE['username'])) && ($_COOKIE['username'] != $user) && (basenam
 	die();
 } else if (isset($_COOKIE['username'])) {
 	$hasaccess = CheckUserAccess($_COOKIE['username']);
-	if ($hasaccess <= 0) {
+	if ($hasaccess <= NO_ACCESS) {
 		unset($_COOKIE['username']);
 		unset($_COOKIE['code']);
 		setcookie('username', null, -1);
@@ -68,7 +80,7 @@ if ((isset($_COOKIE['username'])) && ($_COOKIE['username'] != $user) && (basenam
 	header("Location: error.php?i=-3");
 	die();
 } else {
-	$hasaccess = -1;
+	$hasaccess = DENY_ACCESS;
 	// All is cool.
 }
 
@@ -82,10 +94,10 @@ function CheckUserAccess($username) {
 			$row = mysqli_fetch_assoc($result);
 			return $row['role'];
 		} else {
-			return -1;
+			return DENY_ACCESS;
 		}
 	} else {
-		//return -2;
+		return NO_SQL_CONNECTION;
 		echo mysqli_error($GLOBALS['sqlconnect']);
 	}
 }
@@ -888,7 +900,7 @@ function GetMainPageContent() {
 		$hasaccess = CheckUserAccess($_COOKIE['username']);
 		return "Welcome, " . $_COOKIE['username'] . ". You are already logged in, and you are registered as a member with access to the app, so feel free to stick around.";
 	} else {
-		$hasaccess = 0;
+		$hasaccess = NO_ACCESS;
 		return "This app is only intended for use by the ".$GLOBALS['teamname']." Translation Team. You need to login before you proceed to use anything in this app!<br /><a href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=https://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "callback.php&scope=login\" class=\"font-weight-bold\">Secure login via SteemConnect</a>";
 	}
 }
@@ -898,7 +910,7 @@ function GetMenu() {
 		$hasaccess = CheckUserAccess($_COOKIE['username']);
 		return "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Welcome ".$_COOKIE['username']."</button><div class=\"dropdown-menu dropdown-menu-right\"><a class=\"btn dropdown-item\" href=\"logout.php\">Logout</a></div>";
 	} else {
-		$hasaccess = 0;
+		$hasaccess = NO_ACCESS;
 		return "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Welcome, Guest</button><div class=\"dropdown-menu dropdown-menu-right\"><a class=\"btn dropdown-item\" href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=".  $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "callback.php&scope=login\">Login via SteemConnect</a></div>";
 	}
 }
