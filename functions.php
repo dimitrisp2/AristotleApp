@@ -150,9 +150,7 @@ function ConvertArray2CSV($arrayinput, $seperator) {
 	foreach ($arrayinput as $item) {
 		$thisarray .= $item;
 		$i++;
-		if ($i == $arraycount) {
-			
-		} else {
+		if ($i != $arraycount) {
 			$thisarray .= ",";
 		}
 	}
@@ -938,20 +936,16 @@ function GetSingleReport($reportid) {
 
 function GetMainPageContent() {
 	if (isset($_COOKIE['username'])) {
-		$hasaccess = CheckUserAccess($_COOKIE['username']);
 		return "Welcome, " . $_COOKIE['username'] . ". You are already logged in, and you are registered as a member with access to the app, so feel free to stick around.";
 	} else {
-		$hasaccess = NO_ACCESS;
 		return "This app is only intended for use by the ".$GLOBALS['teamname']." Translation Team. You need to login before you proceed to use anything in this app!<br /><a href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=https://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "callback.php&scope=login\" class=\"font-weight-bold\">Secure login via SteemConnect</a>";
 	}
 }
 
 function GetMenu() {
 	if (isset($_COOKIE['username'])) {
-		$hasaccess = CheckUserAccess($_COOKIE['username']);
 		return "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Welcome ".$_COOKIE['username']."</button><div class=\"dropdown-menu dropdown-menu-right\"><a class=\"btn dropdown-item\" href=\"logout.php\">Logout</a></div>";
 	} else {
-		$hasaccess = NO_ACCESS;
 		return "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Welcome, Guest</button><div class=\"dropdown-menu dropdown-menu-right\"><a class=\"btn dropdown-item\" href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=".  $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "callback.php&scope=login\">Login via SteemConnect</a></div>";
 	}
 }

@@ -43,7 +43,7 @@
                 <a class="nav-item nav-link active" href="index.php">Home</a>
 				<?php
 				// Check if the user is a CM, and don't give access to project/contributions/tasks
-				if ($hasaccess != IS_STAFF && $hasaccess >= IS_TRANSLATOR) {
+				if ($hasaccess < IS_STAFF && $hasaccess >= IS_TRANSLATOR) {
 					?>
 					<a class="nav-item nav-link" href="projects.php">Projects</a>
 					<a class="nav-item nav-link" href="contributions.php">Contributions</a>
