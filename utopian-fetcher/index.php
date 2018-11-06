@@ -4,6 +4,16 @@ $urocksapi = file_get_contents("test.json"); // Example response saved from utop
 $utopian=json_decode($urocksapi,true);
 
 foreach ($utopian as $key => $value){
+	// Checks if the current post is from $languagename
+	echo "<br />";
+	echo $utopian[$key]["url"] . ": ";
+	if (strpos($utopian[$key]['title'], $languagename) === false) {
+		echo "is not " . $languagename;
+		continue;
+	} else {
+		echo "is " . $languagename;
+	}
+
 	// Checks if the link has already been added
 	$isadded = CheckSteemLinkDB($utopian[$key]["url"]);
 	// TODO: Create functions that will check if a contribution entry has been marked as "reviewed" and "upvoted by utopian".
