@@ -384,6 +384,14 @@ function GetContributionList($user = NULL, $project = NULL, $from = NULL, $to = 
 		$showand = TRUE;
 		$sqlaction = $sqlaction . "`c`.`vote-utopian` = " . $voted . " ";
 	}
+	
+	if (!is_null($proofreader)) {
+		if ($showand == TRUE) {
+			$sqlaction .= "AND ";
+		}
+		$showand = TRUE;
+		$sqlaction = $sqlaction . "`c`.`proofreader` = " . $proofreader . " ";
+	}
 
 	if (!is_null($reviewed)) {
 		if ($showand == TRUE) {
