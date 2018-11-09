@@ -12,6 +12,26 @@ $languagename = "Greek";
 // For teams with less than 5 translators, 30 contributions will contributions up to 2 weeks in the past by default.
 $contlimit = 30;
 
+///////////////
+// CONSTANTS //
+///////////////
+
+const CUNREVIEWED = 0;
+const CREVIEWED = 1;
+const CNOTVOTED = 0;
+const CVOTED = 1;
+
+// $utopianstatus constants
+// $utopianstatus array 0: id, 1: vote-utopian, 2: review (date), 3: vote-review, 4: review-link, 5: proofreader, 6: rowlocked [TRUE/FALSE]
+const CID = 0;
+const UTOPIANVOTE = 1;
+const REVIEWDATE = 2;
+const REVIEWVOTE = 3;
+const REViEWLINK = 4;
+const PROOFREADER = 5;
+const ROWLOCKED = 6;
+
+
 
 //////////////////
 // MySQL Config //
