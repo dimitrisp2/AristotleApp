@@ -75,9 +75,13 @@ foreach ($utopian as $key => $value){
 		if ($triggerupdate == TRUE) {
 			// 
 			$condetails = ParseTitle($utopian[$key]["title"]);
+			
+			// Hack for some of the Greek team titles.
 			$projecttitle = str_replace(" -", "", $condetails["project"]);
+			
 			// Try to get the project's ID. If the project is not found, lock the row and do not update it.
 			$project = GetProjectID($projecttitle);
+			
 			if ($project == null) {
 				$locked = LockContribution($utopianstatus[CID]);
 				if ($locked) {
@@ -87,7 +91,7 @@ foreach ($utopian as $key => $value){
 				}
 				continue;
 			}
-			echo "Project is: ".$condetails["project"].", and ID: " . $project;
+
 			$translator = GetUserID($utopian[$key]["author"]);
 			$created = ConvertEpochToYMD($utopian[$key]["created"]["\$date"]);
 			$partno = $condetails["part"];
@@ -98,6 +102,7 @@ foreach ($utopian as $key => $value){
 			} else {
 				$utopianvote = CNOTVOTED;
 			}
+			
 			// $reviewdate is already set in line 40
 			
 			if ($utopian[$key]["voted_on"] == "true") {

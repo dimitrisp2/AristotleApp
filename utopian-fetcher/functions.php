@@ -144,6 +144,8 @@ function AddContribution($project, $translator, $link, $created, $partno = NULL,
 	}
 }
 
+// Returns 1 if the post has reached payout, and 0 if not.
+// Used by UpdateContribution() to lock a row.
 function CheckPayoutStatus($submitted) {
 	$submissiondate = date_create($submitted);
 	$currentdate = date_create("now");
@@ -230,6 +232,9 @@ function IsSteemLink($url) {
 	return $data;
 }
 
+// This function will set "rowlock" field to 1, in order not to allow future updates to that row.
+// This is invoked after the post has reached payout, as there's no need to update it after that,
+// as details are fethed from utopian.rocks cannot be filtered by date.
 function LockContribution($id) {
 	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
 	if (mysqli_stmt_prepare($stmt, 'UPDATE `contributions` SET `rowlock` = 1 WHERE `id` = ?')) {
@@ -279,13 +284,6 @@ function ParseTitle($title) {
 }
 
 function UpdateContribution($id, $project, $translator, $created, $partno, $wordcount, $proofreader, $utopianvote, $reviewdate, $reviewstatus, $reviewlink = NULL, $postpayout, $rowlock) {
-	if (is_null($partno)) {
-		$partno = 0;
-	}
-	
-	if (is_null($wordcount)) {
-		$wordcount = 0;
-	}
 	
 	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
 	// UPDATE `contributions` SET `project` = ?, `translator` = ?, `link` = ?, `submit` = ?, `partno` = ?, `wordcount` = ?, `proofreader` = ?, `vote-utopian` = ?, `review` = ?, `review-status` = ?, `review-link` = ?, `postpayout` = ?, `rowlock` = ? WHERE `id` = ?
