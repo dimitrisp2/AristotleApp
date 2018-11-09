@@ -136,6 +136,13 @@ function CheckSteemLinkDB($url) {
 	}
 }
 
+//Converts utopian rock's timestamp to YEAR-MONTH-DAY HOUR:MIN:SEC
+function ConvertEpochToYMD($timestamp) {
+	$epochdate = $timestamp/1000;
+	$ymddate = date('Y-m-d H:i:s', $epochdate);
+	return $ymddate;
+}
+
 // Check if the contribution has been reviewed and upvoted by Utopian.
 // Returns all details in a csv as: contribution-id,vote-utopian,review-date,vote-review,review-link
 function GetUtopianStatus($url) {
@@ -187,6 +194,21 @@ function IsSteemLink($url) {
 	$data['permlink'] = $pathcomponents[2];
 	
 	return $data;
+}
+
+function LockContribution($id) {
+	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
+	if (mysqli_stmt_prepare($stmt, 'UPDATE `contributions` SET `rowlock` = 1 WHERE `id` = ?')) {
+		mysqli_stmt_bind_param($stmt, "i", $id);
+		$rvl = mysqli_stmt_execute($stmt);
+		if ($rvl) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+	} else {
+		return "error";
+	}
 }
 
 function ParseTitle($title) {
