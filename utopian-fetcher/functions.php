@@ -184,25 +184,8 @@ function IsSteemLink($url) {
 	return $data;
 }
 
-// Parse the blockchain data for the provided post.
-// When automation is implemented, this should be asynchronous
-function ParseSteemLink($postdata) {
-	// Add username to the $details array, as it will be returned with the rest of the data.
-	$details['author'] = ltrim($postdata['username'], "@");
-	$url = "https://api.steemjs.com/get_content?author=".$details['author']."&permlink=".$postdata['permlink'];
-	//echo $url;
-	$json = file_get_contents($url);
-	//echo $json;
-
-	$postdetails = json_decode($json, TRUE);
-
-	//echo $postdetails['post']['title'];
-	// Valid title formats:
-	// "Project name XX Translation - Part YY (~ZZ words)"
-	// "Project name XX Translation | Part YY | ~ZZ Words
-	// where XX is the language name, YY is the part number and ZZ is the word count.
-	$title = $postdetails['title'];
-	if ((strpos($title, '-') !== false) || (strpos($title, '|') !== false)) {
+function ParseTitle($title) {
+		if ((strpos($title, '-') !== false) || (strpos($title, '|') !== false)) {
 		$titlextr = explode($GLOBALS['languagename'], $title, 2);
 		// $titlextr[0] = Project name
 		// $titlextr[1] = Rest of the title without language name
@@ -211,15 +194,23 @@ function ParseSteemLink($postdata) {
 		// $contrnumbers[0] = Part number
 		// $contrnumbers[1] = Word count
 		$partno = $contrnumbers[0][0];
-		$wordcount = $contrnumbers[0][1];
-		//echo "Project: " . $project . ", Part: " . $partno . ", Wordcount: " . $wordcount;
+		
+		if (!isset($contrnumbers[0][1])) {
+			// If the word count array is not set, we set the wordcount var as 0
+			$wordcount = 0;
+		} else if (isset($contrnumbers[0][1]) && (($contrnumbers[0][1] == "") || ($contrnumbers[0][1] < 100))) {
+			// If it is set and it is either null or less than 100, something went wrong (perhaps the title has other numbers too), we set the wordcount var as 0
+			// While this may not catch all the issues, Greek team's titles will work for the part number
+			$wordcount = 0;
+		} else {
+			// Otherwise, we are good to go.
+			$wordcount = $contrnumbers[0][1];
+		}
+
 		$details['project'] = $project;
 		$details['part'] = $partno;
 		$details['words'] = $wordcount;
 
-		$details['permlink'] = $postdetails['permlink'];
-		$details['fulltitle'] = $postdetails['title'];
-		$details['time'] = $postdetails['created'];
 		return $details;
 	} else {
 		return FALSE;
