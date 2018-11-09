@@ -96,14 +96,8 @@ foreach ($utopian as $key => $value){
 			}
 			
 			// $reviewdate is already set in line 40
-			
-			if ($utopian[$key]["voted_on"] == "true") {
-				$utopianvote = CVOTED;
-			} else {
-				$utopianvote = CNOTVOTED;
-			}
-			
-			if ($reviewdate == "0000-00-00 00:00:00") {
+
+			if ($reviewdate == "0000-00-00 00:00:00" || $reviewdate == NULL) {
 				$reviewstatus = CUNREVIEWED;
 			} else {
 				$reviewstatus = CREVIEWED;
