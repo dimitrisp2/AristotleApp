@@ -264,6 +264,31 @@ function ParseTitle($title) {
 	}
 }
 
+function UpdateContribution($id, $project, $translator, $created, $partno, $wordcount, $proofreader, $utopianvote, $reviewdate, $reviewstatus, $reviewlink = NULL, $postpayout, $rowlock) {
+	if (is_null($partno)) {
+		$partno = 0;
+	}
+	
+	if (is_null($wordcount)) {
+		$wordcount = 0;
+	}
+	
+	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
+	// UPDATE `contributions` SET `project` = ?, `translator` = ?, `link` = ?, `submit` = ?, `partno` = ?, `wordcount` = ?, `proofreader` = ?, `vote-utopian` = ?, `review` = ?, `review-status` = ?, `review-link` = ?, `postpayout` = ?, `rowlock` = ? WHERE `id` = ?
+	if (mysqli_stmt_prepare($stmt, 'UPDATE `contributions` SET `project` = ?, `translator` = ?, `submit` = ?, `partno` = ?, `wordcount` = ?, `proofreader` = ?, `vote-utopian` = ?, `review` = ?, `review-status` = ?, `review-link` = ?, `postpayout` = ?, `rowlock` = ? WHERE `id` = ?')) {
+		mysqli_stmt_bind_param($stmt, "isiiiisisssii", $project, $translator, $created, $partno, $wordcount, $proofreader, $utopianvote, $reviewdate, $reviewstatus, $reviewlink, $postpayout, $rowlock, $id);
+		$rvl = mysqli_stmt_execute($stmt);
+		if ($rvl) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+	} else {
+		return FALSE;
+	}
+}
+
+
 function closeSQL() {
 	global $sqlcon;
 	mysqli_close($sqlcon);
