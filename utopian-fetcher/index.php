@@ -1,6 +1,6 @@
 <?php
 include("functions.php");
-$urocksapi = file_get_contents("test.json"); // Example response saved from utopian.rocks/api, used for testing
+$urocksapi = file_get_contents("https://utopian.rocks/api/posts?category=translations");
 $utopian=json_decode($urocksapi,true);
 
 foreach ($utopian as $key => $value){
@@ -19,7 +19,6 @@ foreach ($utopian as $key => $value){
 	// Checks if the link has already been added
 	$isadded = CheckSteemLinkDB($utopian[$key]["url"]);
 	if ($isadded) {
-		echo $utopian[$key]["url"] . ": already added<br />";
 		$utopiancsv = GetUtopianStatus($utopian[$key]["url"]);
 		$utopianstatus = explode(",", $utopiancsv);
 		// $utopianstatus array 0: id, 1: vote-utopian, 2: review (date), 3: vote-review, 4: review-link, 5: proofreader, 6: rowlocked [TRUE/FALSE]
@@ -48,10 +47,8 @@ foreach ($utopian as $key => $value){
 		// Review checks. Using a single IF instead of multiple ones, as triggering an update will update the full contribution data
 		// so there's no need to waste computational for the extra checks.
 		if ($proofreader != $utopian[$key]["moderator"]) {
-			echo "Not the same proofreader. [local is $proofreader, remote is ". $utopian[$key]["moderator"] . "]";
 			$triggerupdate = TRUE;
 		} else if (($utopianstatus[REVIEWDATE] == "0000-00-00 00:00") && ($utopian[$key]["status"] == "reviewed")) {
-			echo "Not the same review date [local is 0, remote is ". $utopian[$key]["voted_on"] . "]";
 			$triggerupdate = TRUE;
 		}
 		
@@ -84,11 +81,6 @@ foreach ($utopian as $key => $value){
 			
 			if ($project == null) {
 				$locked = LockContribution($utopianstatus[CID]);
-				if ($locked) {
-					echo "locked";
-				} else {
-					echo "Should be locked, but couldn't lock";
-				}
 				continue;
 			}
 
@@ -132,20 +124,21 @@ foreach ($utopian as $key => $value){
 		}
 		
 	} else {
-		// If the contribution is not yet added, get all the needed details
-		// (creation date, review/upvote status etc) and add it to the db
-		// The following code is used as an example to show the details
-		echo "<hr />";
-		echo $utopian[$key]["url"] . ":<br />";
-		echo $utopian[$key]["review_date"]["\$date"]."<br />";
-		echo $utopian[$key]["moderator"]."<br />";
-		if (isset($utopian[$key]["review_status"])) {
-			echo $utopian[$key]["review_status"]."<br />";
-			echo $utopian[$key]["voted_on"]."<br />";
-			
-			
+		echo $utopian[$key]["url"] . ": not added<br />";
+		$condetails = ParseTitle($utopian[$key]["title"]);
+		echo "<pre>";
+		print_r($condetails);
+		echo "</pre>";
+		$projectid = GetProjectID($condetails["project"]);
+		$translatorid = GetUserID($utopian[$key]["author"]);
+		$steemlink = $utopian[$key]["url"];
+		$submitdate = ConvertEpochToYMD($utopian[$key]["created"]['$date']);
+		$partno = $condetails["part"];
+		$wordcount = $condetails["words"];
+		if ($projectid == NULL) {
+			$projectid = 0;
 		}
-		echo "<hr />";
+		$addcont = AddContribution($projectid, $translatorid, $steemlink, $submitdate, $partno, $wordcount);
 	}
 }
 
