@@ -20,6 +20,8 @@ const CUNREVIEWED = 0;
 const CREVIEWED = 1;
 const CNOTVOTED = 0;
 const CVOTED = 1;
+const NOTPAIDOUT = 0;
+const PAIDOUT = 1;
 
 // $utopianstatus constants
 // $utopianstatus array 0: id, 1: vote-utopian, 2: review (date), 3: vote-review, 4: review-link, 5: proofreader, 6: rowlocked [TRUE/FALSE]
@@ -27,7 +29,7 @@ const CID = 0;
 const UTOPIANVOTE = 1;
 const REVIEWDATE = 2;
 const REVIEWVOTE = 3;
-const REViEWLINK = 4;
+const REVIEWLINK = 4;
 const PROOFREADER = 5;
 const ROWLOCKED = 6;
 
@@ -139,6 +141,18 @@ function AddContribution($project, $translator, $link, $created, $partno = NULL,
 		}
 	} else {
 		return "error";
+	}
+}
+
+function CheckPayoutStatus($submitted) {
+	$submissiondate = date_create($submitted);
+	$currentdate = date_create("now");
+	$interval = date_diff($submissiondate, $currentdate);
+	// Returns the number of days since submission
+	if ($interval->format('%a') > 7) {
+		return PAIDOUT;
+	} else {
+		return NOTPAIDOUT;
 	}
 }
 
