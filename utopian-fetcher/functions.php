@@ -139,10 +139,15 @@ function CheckSteemLinkDB($url) {
 // Check if the contribution has been reviewed and upvoted by Utopian.
 // Returns all details in a csv as: contribution-id,vote-utopian,review-date,vote-review,review-link
 function GetUtopianStatus($url) {
-	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id`, `vote-utopian`, `review`, `vote-review`, `review-link`, `proofreader` FROM `contributions` WHERE `link` = \"".$url."\"");
+	$result = mysqli_query($GLOBALS['sqlcon'], "SELECT `id`, `vote-utopian`, `review`, `vote-review`, `review-link`, `proofreader`, `rowlock` FROM `contributions` WHERE `link` = \"".$url."\"");
 	if ($result) {
 		$row = mysqli_fetch_assoc($result);
-		$status = $row['id'] . "," . $row['vote-utopian'] . "," . $row['review'] . "," . $row['vote-review'] . "," . $row['review-link'] . "," . $row['proofreader'];
+		if ($row['rowlock'] == 0) {
+			$rowlocked = FALSE;
+		} else {
+			$rowlocked = TRUE;
+		}
+		$status = $row['id'] . "," . $row['vote-utopian'] . "," . $row['review'] . "," . $row['vote-review'] . "," . $row['review-link'] . "," . $row['proofreader'] . "," . $rowlocked;
 	} else {
 		$status = "error";
 	}
