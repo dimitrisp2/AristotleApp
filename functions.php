@@ -897,6 +897,20 @@ function GetAllUsers() {
 // Weekly Reports //
 ////////////////////
 
+function GetContributionsForReport($endate) {
+	$weekend = $endate;
+	//$overview = $row['overview'];
+	$proofreader = GetUserID($_COOKIE['username']);
+	
+	// We want the reviews of the past 7 dates, so we need to get the actual date of $weekend - 6 days.
+	$weekstart = date('Y-m-d', strtotime('-6 days', strtotime($weekend)));
+
+	// Now we want to get all the contributions from that week, in a table. 
+	$contributions = GetContributionList(NULL, NULL, $weekstart, $weekend, NULL, NULL, $proofreader, NULL, true);
+	
+	return $contributions;
+}
+
 function GetReportList($user = NULL) {
 	// prepare SQL action if any/all of the arguments are set.
 	if (!is_null($user)) {
@@ -956,6 +970,22 @@ function GetMainPageContent() {
 	} else {
 		return "This app is only intended for use by the ".$GLOBALS['teamname']." Translation Team. You need to login before you proceed to use anything in this app!<br /><a href=\"https://steemconnect.com/oauth2/authorize?client_id=aristotle.app&redirect_uri=https://" . $_SERVER['SERVER_NAME'] . dirname($_SERVER['REQUEST_URI']) . "callback.php&scope=login\" class=\"font-weight-bold\">Secure login via SteemConnect</a>";
 	}
+}
+
+function SubmitReport($endate, $comment, $proofreader) {
+	$stmt = mysqli_stmt_init($GLOBALS['sqlcon']);
+	// Prepare the statement and add all needed variables
+	if (mysqli_stmt_prepare($stmt, 'INSERT INTO `weeklyreports` (`weekend`, `user`, `overview`) VALUES (?, ?, ?)')) {
+		mysqli_stmt_bind_param($stmt, "sis", $endate, $proofreader, $comment);
+		$rvl = mysqli_stmt_execute($stmt);
+		
+		// Return if true or false to inform the user if it was a success.
+		if ($rvl) {
+			return "Report has been added to the database successfully";
+		} else {
+			return "Error adding the Report to the database. Please <a href=\"javascript:history.back()\">return to the previous page</a> and try again. If the problem persists, contact <b>dimitrisp</b> on the DaVinci Discord server.";
+		}
+	}	
 }
 
 function GetMenu() {
