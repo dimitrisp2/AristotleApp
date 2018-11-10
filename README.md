@@ -13,15 +13,14 @@ Also, take some time to read the [Project Announcement Post on Steemit](https://
 - Basic SteemConnect Login/Verification
 - Tasks (add/reply/view/mark as resolved)
 - Projects list with start/finish dates and assigning to translators/proofreaders
-- Contribution list with filtering functionality
+- Contribution list with filtering functionality and manual addition of contributions
+- Contribution list with automated addition, check of LM review and Utopian upvotes (works with certain title formats only)
 - User list
 
 ## Planned initial functionality
 
-- Task requests from Translators* **partially done**
 - Full SteemConnect integration **partially done**
 - Translator list with the projects they are translating (or have finished translating)
-- Contributions list with check of LM review and Utopian upvotes.
 - LM Review upvote by Utopian
 - Days of LM availability for better coordination with the translators
 - Discord notifications
