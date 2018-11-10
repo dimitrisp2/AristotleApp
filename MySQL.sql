@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Φιλοξενητής: 127.0.0.1
--- Χρόνος δημιουργίας: 28 Οκτ 2018 στις 12:39:28
+-- Χρόνος δημιουργίας: 10 Νοε 2018 στις 09:36:27
 -- Έκδοση διακομιστή: 10.1.21-MariaDB
 -- Έκδοση PHP: 7.1.2
 
@@ -32,16 +32,19 @@ CREATE TABLE `contributions` (
   `translator` int(11) NOT NULL,
   `proofreader` int(11) DEFAULT NULL,
   `link` tinytext NOT NULL,
-  `submit` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `review` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `submit` timestamp NULL DEFAULT NULL,
+  `review` timestamp NULL DEFAULT NULL,
+  `review-status` int(11) DEFAULT NULL,
+  `review-link` text,
   `vote-review` tinyint(4) DEFAULT '0',
   `partno` tinyint(3) UNSIGNED DEFAULT NULL,
   `wordcount` smallint(6) DEFAULT NULL,
   `vote-utopian` int(11) NOT NULL,
-  `postpayout` timestamp NULL DEFAULT NULL,
+  `postpayout` decimal(9,4) DEFAULT NULL,
   `score` tinyint(3) UNSIGNED DEFAULT NULL,
   `difficulty` tinyint(4) DEFAULT NULL,
-  `comment` text NOT NULL
+  `comment` text,
+  `rowlock` tinyint(4) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 -- --------------------------------------------------------
